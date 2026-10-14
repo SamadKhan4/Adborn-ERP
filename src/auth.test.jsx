@@ -39,9 +39,13 @@ beforeEach(() => {
     },
   );
   useAuthStore.getState().clearAuth();
-  vi.spyOn(api, 'get').mockResolvedValue({
-    data: { data: { database: 'connected' } },
-  });
+  vi.spyOn(api, 'get').mockImplementation((url) =>
+    Promise.resolve(
+      url === '/user-management'
+        ? { data: { data: { items: [] } } }
+        : { data: { data: { database: 'connected' } } },
+    ),
+  );
 });
 afterEach(() => {
   cleanup();
@@ -59,17 +63,17 @@ test('protected entry redirects to login and successful login opens the protecte
     target: { value: 'StrongPassword123' },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
-  expect(
-    await screen.findByRole(
-      'heading',
-      { name: 'Dashboard', level: 1 },
-      { timeout: 4000 },
-    ),
-  ).toBeTruthy();
+  const userManagementLink = await screen.findByRole('link', {
+    name: 'User Management',
+  });
   expect(post).toHaveBeenCalledWith('/auth/login', {
     email: 'admin@example.test',
     password: 'StrongPassword123',
   });
+  fireEvent.click(userManagementLink);
+  await waitFor(() =>
+    expect(userManagementLink.getAttribute('aria-current')).toBe('page'),
+  );
 });
 test('invalid login remains on the form with an error', async () => {
   vi.spyOn(api, 'post').mockRejectedValue({
@@ -84,6 +88,36 @@ test('invalid login remains on the form with an error', async () => {
     'Invalid email or password',
   );
   expect(useAuthStore.getState().user).toBeNull();
+});
+test('employee login records attendance and opens the employee workspace', async () => {
+  const employeeSession = {
+    user: {
+      name: 'Test Employee',
+      role: 'employee',
+      permissions: ['dashboard.view', 'hrms.self'],
+    },
+    accessToken: 'employee-access',
+  };
+  const post = vi
+    .spyOn(api, 'post')
+    .mockResolvedValueOnce({ data: { data: employeeSession } })
+    .mockResolvedValueOnce({ data: { success: true } });
+  mount('/login');
+  fireEvent.change(screen.getByLabelText('Email'), {
+    target: { value: 'employee@example.test' },
+  });
+  fireEvent.change(screen.getByLabelText('Password'), {
+    target: { value: 'EmployeePassword123' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+  await waitFor(() =>
+    expect(post).toHaveBeenCalledWith('/hrms/attendance/check-in', {}),
+  );
+  expect(
+    (await screen.findByRole('link', { name: 'My Dashboard' })).getAttribute(
+      'href',
+    ),
+  ).toBe('/employee');
 });
 test('restores an existing refresh-cookie session before rendering protected content', async () => {
   useAuthStore.setState({ isInitialized: false });

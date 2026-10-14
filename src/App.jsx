@@ -16,6 +16,7 @@ const Employees = lazy(() => import('./pages/hrms/Employees.jsx'));
 const Onboarding = lazy(() => import('./pages/hrms/Onboarding.jsx'));
 const HRMSModulePage = lazy(() => import('./pages/hrms/HRMSModulePage.jsx'));
 const UserManagement = lazy(() => import('./pages/UserManagement.jsx'));
+const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard.jsx'));
 
 function ProtectedRoute() {
   const user = useAuthStore((state) => state.user);
@@ -31,8 +32,19 @@ function OverviewRoute() {
     </Suspense>
   );
 }
+function EmployeeRoute() {
+  const role = useAuthStore((state) => state.user?.role);
+  if (!['employee', 'executive'].includes(role))
+    return <Navigate to={defaultRouteForRole(role)} replace />;
+  return (
+    <Suspense fallback={<p role="status">Loading employee dashboardâ€¦</p>}>
+      <EmployeeDashboard />
+    </Suspense>
+  );
+}
 export default function App() {
   const initialized = useAuthStore((state) => state.isInitialized);
+  const role = useAuthStore((state) => state.user?.role);
   const [error, setError] = useState('');
   const restore = () => {
     setError('');
@@ -70,6 +82,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<ERPLayout />}>
           <Route path="/" element={<OverviewRoute />} />
+          <Route path="/employee" element={<EmployeeRoute />} />
           {[
             'crm',
             'projects',
@@ -89,7 +102,7 @@ export default function App() {
             path="/user-management"
             element={
               ['super_admin', 'admin', 'manager'].includes(
-                useAuthStore.getState().user?.role,
+                role,
               ) ? (
                 <Suspense
                   fallback={<p role="status">Loading user management…</p>}

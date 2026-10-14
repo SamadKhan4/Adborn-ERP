@@ -10,8 +10,15 @@ import {
   PhoneCall,
   Files,
   ShieldCheck,
+  CircleUserRound,
 } from 'lucide-react';
 export const navigation = [
+  {
+    label: 'My Dashboard',
+    path: '/employee',
+    icon: CircleUserRound,
+    allowedRoles: ['employee', 'executive'],
+  },
   {
     label: 'Overview',
     path: '/',
@@ -82,6 +89,6 @@ export const canView = (user, item) =>
 export const defaultRouteForRole = (role) => {
   if (['super_admin', 'admin', 'manager'].includes(role)) return '/';
   if (['hr', 'team_leader'].includes(role)) return '/hrms/dashboard';
-  if (['employee', 'executive'].includes(role)) return '/hrms/onboarding';
+  if (['employee', 'executive'].includes(role)) return '/employee';
   return '/departments';
 };

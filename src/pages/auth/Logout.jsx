@@ -14,9 +14,10 @@ export default function Logout() {
     try {
       await authService.logout();
       navigate('/login', { replace: true });
-    } catch {
+    } catch (failure) {
       setError(
-        'Logout could not be completed. Please retry to revoke your session.',
+        failure.response?.data?.error?.message ||
+          'Logout could not be completed. Please retry to revoke your session.',
       );
     } finally {
       setPending(false);
@@ -26,7 +27,7 @@ export default function Logout() {
     <main className={tw('auth-page')}>
       <section className={tw('auth-panel')}>
         <h1>Log out of AdBorn ERP</h1>
-        <p>End your session on this browser?</p>
+        <p>End your session on this browser? Employee checkout is recorded at this time.</p>
         {error && <p role="alert">{error}</p>}
         <button onClick={logout} disabled={pending}>
           {pending ? 'Logging out…' : 'Log out'}
