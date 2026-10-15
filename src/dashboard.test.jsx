@@ -2,10 +2,22 @@ import React from 'react';
 import { beforeEach, afterEach, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RecentInvoices from './components/dashboard/RecentInvoices.jsx';
 import ERPHeader from './components/layout/ERPHeader.jsx';
+import EmployeeDashboard from './pages/employee/EmployeeDashboard.jsx';
 import { useAuthStore } from './store/authStore.js';
-beforeEach(() =>
+import { api } from './services/api.js';
+
+function renderHeader(children = <ERPHeader />) {
+  return render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <MemoryRouter>{children}</MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+beforeEach(() => {
   useAuthStore.getState().setSession({
     user: {
       name: 'Test Admin',
@@ -13,8 +25,9 @@ beforeEach(() =>
       role: 'super_admin',
     },
     accessToken: 'test',
-  }),
-);
+  });
+  vi.spyOn(api, 'get').mockResolvedValue({ data: { data: { items: [], unreadCount: 0 } } });
+});
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -36,11 +49,7 @@ test('invoice search and status filter operate only on demo records', () => {
   expect(screen.getByText('No demo invoices match your filters.')).toBeTruthy();
 });
 test('profile menu shows authenticated user and logout; Escape closes it', () => {
-  render(
-    <MemoryRouter>
-      <ERPHeader />
-    </MemoryRouter>,
-  );
+  renderHeader();
   fireEvent.click(screen.getByRole('button', { name: 'Open profile menu' }));
   expect(screen.getByText('test@example.test')).toBeTruthy();
   expect(screen.getByRole('link', { name: 'Log out' })).toBeTruthy();
@@ -51,11 +60,7 @@ test('profile menu shows authenticated user and logout; Escape closes it', () =>
 });
 test('ungranted modules and overview remain hidden for employees', () => {
   useAuthStore.setState({ user: { name: 'Employee', role: 'employee' } });
-  render(
-    <MemoryRouter>
-      <ERPHeader />
-    </MemoryRouter>,
-  );
+  renderHeader();
   expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull();
   expect(screen.queryByRole('link', { name: 'Invoices' })).toBeNull();
 });
@@ -67,7 +72,7 @@ test('HR sees only HRMS and Departments in global navigation', () => {
       permissions: ['dashboard.view', 'users.read', 'users.manage', 'hrms.read', 'hrms.manage', 'hrms.approve', 'hrms.payroll.read'],
     },
   });
-  render(<MemoryRouter><ERPHeader /></MemoryRouter>);
+  renderHeader();
   const links = screen.getByRole('navigation', { name: 'Primary navigation' }).querySelectorAll('a');
   expect([...links].map((link) => link.textContent.trim())).toEqual(['HRMS', 'Departments']);
 });
@@ -76,12 +81,7 @@ function RouteProbe() {
   return <p data-testid="current-route">{location.pathname}</p>;
 }
 test('dragging the header scrolls tabs and suppresses accidental mouse selection', () => {
-  render(
-    <MemoryRouter>
-      <ERPHeader />
-      <RouteProbe />
-    </MemoryRouter>,
-  );
+  renderHeader(<><ERPHeader /><RouteProbe /></>);
   const nav = screen.getByRole('navigation', { name: 'Primary navigation' });
   nav.scrollLeft = 200;
   const pointer = (type, x) => {
@@ -103,4 +103,40 @@ test('dragging the header scrolls tabs and suppresses accidental mouse selection
   expect(screen.getByTestId('current-route').textContent).toBe('/');
   fireEvent.click(screen.getByRole('link', { name: 'CRM' }), { detail: 0 });
   expect(screen.getByTestId('current-route').textContent).toBe('/crm');
+});
+
+test('employee dashboard tabs open every self-service section', async () => {
+  useAuthStore.setState({ user: { name: 'Riya Shah', role: 'employee', email: 'riya@example.test' } });
+  api.get.mockResolvedValue({ data: { data: {
+    employee: { name: 'Riya Shah', email: 'riya@example.test', role: 'employee', department: 'graphics', profile: { employeeCode: 'ADB-EMP-0001', designation: 'Designer', employmentType: 'full_time', address: { current: 'Mumbai' } } },
+    todayAttendance: null, dailyReport: null, dailyReports: [], recentAttendance: [], leaveBalances: [], holidays: [], upcomingHolidays: [], payslips: [], announcements: [], leaveRequests: [], assets: [], tasks: [],
+  } } });
+  const scrollIntoView = vi.fn();
+  Object.defineProperty(Element.prototype, 'scrollIntoView', { configurable: true, value: scrollIntoView });
+  renderHeader(<EmployeeDashboard />);
+  await screen.findAllByRole('button', { name: 'My Assets' });
+  expect(screen.getAllByTestId('workflow-connector')).toHaveLength(2);
+
+  const tabs = [
+    ['My Attendance', 'attendance'],
+    ['My Daily Report', 'daily-reports'],
+    ['My Leaves', 'leave-requests'],
+    ['My Payslips', 'payslips'],
+    ['Holiday Calendar', 'holidays'],
+    ['My Profile', 'profile'],
+    ['My Assets', 'assets'],
+    ['My Tasks', 'tasks'],
+    ['Announcements', 'announcements'],
+  ];
+  for (const [label, id] of tabs) {
+    const tab = screen.getAllByRole('button', { name: label })[0];
+    fireEvent.click(tab);
+    expect(tab.getAttribute('aria-current')).toBe('page');
+    expect(document.getElementById(id)).toBeTruthy();
+    expect(document.querySelectorAll('[aria-current="page"]')).toHaveLength(2);
+  }
+
+  expect(document.getElementById('profile')).toBeFalsy();
+  fireEvent.click(screen.getAllByRole('button', { name: 'My Profile' })[0]);
+  expect(screen.getByText('ADB-EMP-0001')).toBeTruthy();
 });

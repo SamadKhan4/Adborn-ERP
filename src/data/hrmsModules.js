@@ -53,23 +53,11 @@ export const hrmsModules = {
     noun: 'payroll cycle',
     columns: ['Cycle', 'Employees', 'Gross Payroll', 'Status'],
   },
-  salary: {
-    title: 'Salary Management',
-    description: 'Review salary structures and compensation change requests.',
-    noun: 'salary structure',
-    columns: ['Structure', 'Applies To', 'Components', 'Status'],
-  },
   performance: {
     title: 'Performance Reviews',
     description: 'Coordinate review cycles, goals, and manager feedback.',
     noun: 'review cycle',
     columns: ['Cycle', 'Participants', 'Completion', 'Status'],
-  },
-  training: {
-    title: 'Training & Development',
-    description: 'Organize learning programs and employee skill development.',
-    noun: 'training program',
-    columns: ['Program', 'Audience', 'Enrolled', 'Status'],
   },
   assets: {
     title: 'Asset Management',

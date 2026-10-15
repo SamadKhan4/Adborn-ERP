@@ -16,6 +16,8 @@ const Employees = lazy(() => import('./pages/hrms/Employees.jsx'));
 const Onboarding = lazy(() => import('./pages/hrms/Onboarding.jsx'));
 const HRMSModulePage = lazy(() => import('./pages/hrms/HRMSModulePage.jsx'));
 const Attendance = lazy(() => import('./pages/hrms/Attendance.jsx'));
+const HolidayCalendar = lazy(() => import('./pages/hrms/HolidayCalendar.jsx'));
+const Payroll = lazy(() => import('./pages/hrms/Payroll.jsx'));
 const UserManagement = lazy(() => import('./pages/UserManagement.jsx'));
 const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard.jsx'));
 const Quotations = lazy(() => import('./pages/Quotations.jsx'));
@@ -130,6 +132,8 @@ export default function App() {
             <Route path="employees" element={<Employees />} />
             <Route path="onboarding" element={<Onboarding />} />
             <Route path="attendance" element={<Attendance />} />
+            <Route path="holidays" element={<HolidayCalendar />} />
+            <Route path="payroll" element={<Payroll />} />
             <Route path=":module" element={<HRMSModulePage />} />
           </Route>
         </Route>

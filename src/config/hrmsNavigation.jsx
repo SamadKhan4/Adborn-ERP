@@ -10,9 +10,7 @@ import {
   Clock3,
   Palmtree,
   WalletCards,
-  BadgeIndianRupee,
   ChartNoAxesCombined,
-  GraduationCap,
   PackageCheck,
   Files,
   Megaphone,
@@ -54,9 +52,7 @@ export const hrmsGroups = [
     label: 'Payroll & Performance',
     items: [
       { label: 'Payroll', path: '/hrms/payroll', icon: WalletCards },
-      { label: 'Salary Management', path: '/hrms/salary', icon: BadgeIndianRupee },
       { label: 'Performance Reviews', path: '/hrms/performance', icon: ChartNoAxesCombined },
-      { label: 'Training & Development', path: '/hrms/training', icon: GraduationCap },
     ],
   },
   {
