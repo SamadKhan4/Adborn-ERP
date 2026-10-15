@@ -17,6 +17,7 @@ const Onboarding = lazy(() => import('./pages/hrms/Onboarding.jsx'));
 const HRMSModulePage = lazy(() => import('./pages/hrms/HRMSModulePage.jsx'));
 const UserManagement = lazy(() => import('./pages/UserManagement.jsx'));
 const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard.jsx'));
+const Quotations = lazy(() => import('./pages/Quotations.jsx'));
 
 function ProtectedRoute() {
   const user = useAuthStore((state) => state.user);
@@ -91,13 +92,13 @@ export default function App() {
             'reports',
             'activity',
             'tasks',
-            'quotations',
             'leads',
             'finance',
           ].map((path) => (
             <Route key={path} path={`/${path}`} element={<ComingSoon />} />
           ))}
           <Route path="/departments" element={<Departments />} />
+          <Route path="/quotations" element={<Suspense fallback={<p role="status">Loading quotationsâ€¦</p>}><Quotations /></Suspense>} />
           <Route
             path="/user-management"
             element={
