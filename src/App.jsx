@@ -18,6 +18,7 @@ const HRMSModulePage = lazy(() => import('./pages/hrms/HRMSModulePage.jsx'));
 const UserManagement = lazy(() => import('./pages/UserManagement.jsx'));
 const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard.jsx'));
 const Quotations = lazy(() => import('./pages/Quotations.jsx'));
+const Invoices = lazy(() => import('./pages/Invoices.jsx'));
 
 function ProtectedRoute() {
   const user = useAuthStore((state) => state.user);
@@ -87,7 +88,6 @@ export default function App() {
           {[
             'crm',
             'projects',
-            'invoices',
             'payments',
             'reports',
             'activity',
@@ -99,6 +99,7 @@ export default function App() {
           ))}
           <Route path="/departments" element={<Departments />} />
           <Route path="/quotations" element={<Suspense fallback={<p role="status">Loading quotationsâ€¦</p>}><Quotations /></Suspense>} />
+          <Route path="/invoices" element={<Suspense fallback={<p role="status">Loading invoices…</p>}><Invoices /></Suspense>} />
           <Route
             path="/user-management"
             element={

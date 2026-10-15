@@ -1,5 +1,6 @@
 import { tw } from '../../lib/tailwind.js';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   CalendarDays,
   Plus,
@@ -52,14 +53,10 @@ export default function Dashboard() {
               onChange={(event) => setDate(event.target.value)}
             />
           </label>
-          <button
-            className={tw('primary-button')}
-            disabled
-            title="Invoice creation is coming soon"
-          >
+          <Link className={tw('primary-button')} to="/invoices">
             <Plus size={19} />
-            Create Invoice <span className={tw('button-note')}>Soon</span>
-          </button>
+            Create Invoice
+          </Link>
         </div>
       </div>
       <div className={tw('demo-banner')}>
