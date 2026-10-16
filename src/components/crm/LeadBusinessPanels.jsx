@@ -247,7 +247,7 @@ export function LeadDocuments({ lead }) {
     <section className={panel}>
       <h3 className="mb-4 text-sm font-bold">Documents</h3>
       {can(permissions, 'crm.leads.edit') && (
-        <Field label="Upload PDF, PNG or JPEG (up to 5 MB)">
+        <Field label="Upload PDF, PNG or JPEG (up to 10 MB)">
           <input
             type="file"
             accept="application/pdf,image/png,image/jpeg"
