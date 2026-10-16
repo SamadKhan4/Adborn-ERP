@@ -18,7 +18,7 @@ import {
   QueryState,
   usePermissions,
 } from '../../components/crm/CRMShared.jsx';
-import { label } from '../../../../shared/crm.js';
+import { label } from '../../../shared/crm.js';
 import ActivityTimeline from '../../components/crm/ActivityTimeline.jsx';
 import ActivityForm from '../../components/crm/ActivityForm.jsx';
 import FollowUps from './FollowUps.jsx';

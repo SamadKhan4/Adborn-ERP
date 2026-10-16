@@ -1,6 +1,6 @@
 import { api } from '../../services/api.js';
 import { useState } from 'react';
-import { followUpTypes, label } from '../../../../shared/crm.js';
+import { followUpTypes, label } from '../../../shared/crm.js';
 import HRMSDialog from '../hrms/HRMSDialog.jsx';
 import { Button } from '../ui/Button.jsx';
 import { Field, input, Message, useCRMMutation, useMetadata } from './CRMShared.jsx';

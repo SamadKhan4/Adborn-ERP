@@ -11,7 +11,7 @@ import {
   QueryState,
   useDebounced,
 } from '../crm/CRMShared.jsx';
-import { taskStatuses, teamLabel } from '../../../../shared/team.js';
+import { taskStatuses, teamLabel } from '../../../shared/team.js';
 import { TaskForm, useTeamMutation } from './TeamForms.jsx';
 export default function TeamBoard({
   team,

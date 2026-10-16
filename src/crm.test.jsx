@@ -20,7 +20,7 @@ import {
   sources,
   lostReasons,
   serviceCatalog,
-} from '../../shared/crm.js';
+} from '../shared/crm.js';
 import Leads from './pages/crm/Leads.jsx';
 import LeadDetail from './pages/crm/LeadDetail.jsx';
 import FollowUps from './pages/crm/FollowUps.jsx';

@@ -5,8 +5,8 @@ import { api } from '../../services/api.js';
 import {
   createLeadSchema,
   updateLeadSchema,
-} from '../../../../shared/crmValidation.js';
-import { label } from '../../../../shared/crm.js';
+} from '../../../shared/crmValidation.js';
+import { label } from '../../../shared/crm.js';
 import HRMSDialog from '../hrms/HRMSDialog.jsx';
 import { Button } from '../ui/Button.jsx';
 import {

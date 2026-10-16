@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api.js';
 import HRMSDialog from '../hrms/HRMSDialog.jsx';
 import { Button } from '../ui/Button.jsx';
-import { label } from '../../../../shared/crm.js';
+import { label } from '../../../shared/crm.js';
 import {
   AssigneeSelect,
   Field,

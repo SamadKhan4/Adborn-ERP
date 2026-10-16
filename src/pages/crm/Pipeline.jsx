@@ -15,7 +15,7 @@ import {
   useMetadata,
   usePermissions,
 } from '../../components/crm/CRMShared.jsx';
-import { label } from '../../../../shared/crm.js';
+import { label } from '../../../shared/crm.js';
 function Column({
   stage,
   title,

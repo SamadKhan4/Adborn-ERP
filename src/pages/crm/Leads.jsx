@@ -24,7 +24,7 @@ import {
   useMetadata,
   usePermissions,
 } from '../../components/crm/CRMShared.jsx';
-import { label } from '../../../../shared/crm.js';
+import { label } from '../../../shared/crm.js';
 const columns = [
   'leadId',
   'companyName',

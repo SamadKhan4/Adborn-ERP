@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api } from '../../services/api.js';
 import HRMSDialog from '../hrms/HRMSDialog.jsx';
 import { Button } from '../ui/Button.jsx';
-import { manualActivityTypes, label } from '../../../../shared/crm.js';
+import { manualActivityTypes, label } from '../../../shared/crm.js';
 import { Field, input, Message, useCRMMutation } from './CRMShared.jsx';
 export default function ActivityForm({ leadId, type = 'NOTE', onClose }) {
   const [selectedType, setType] = useState(type);

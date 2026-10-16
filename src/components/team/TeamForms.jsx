@@ -14,7 +14,7 @@ import {
   taskStatuses,
   taskPriorities,
   teamLabel,
-} from '../../../../shared/team.js';
+} from '../../../shared/team.js';
 export function useTeamMutation(fn, onSuccess) {
   const client = useQueryClient();
   return useMutation({

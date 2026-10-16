@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api.js';
-import { importFields } from '../../../../shared/crmImport.js';
+import { importFields } from '../../../shared/crmImport.js';
 import HRMSDialog from '../hrms/HRMSDialog.jsx';
 import { Button } from '../ui/Button.jsx';
 import {

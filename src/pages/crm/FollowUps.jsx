@@ -15,7 +15,7 @@ import {
   useCRMMutation,
   usePermissions,
 } from '../../components/crm/CRMShared.jsx';
-import { label } from '../../../../shared/crm.js';
+import { label } from '../../../shared/crm.js';
 export default function FollowUps({ leadId }) {
   const [tab, setTab] = useState('today');
   const [page, setPage] = useState(1);

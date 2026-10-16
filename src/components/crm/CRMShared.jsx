@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore.js';
 import { api } from '../../services/api.js';
 import { Button } from '../ui/Button.jsx';
-import { label } from '../../../../shared/crm.js';
+import { label } from '../../../shared/crm.js';
 export const panel =
   'rounded-2xl border border-[#e5edf6] bg-white p-5 shadow-[0_8px_28px_#315d8608]';
 export const input =

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api.js';
-import { stages, label } from '../../../../shared/crm.js';
+import { stages, label } from '../../../shared/crm.js';
 import { Button } from '../../components/ui/Button.jsx';
 import {
   can,
