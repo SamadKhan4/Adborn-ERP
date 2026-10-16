@@ -18,6 +18,7 @@ import { navigation, canView } from '../../config/navigation.js';
 import DraggableNavigation from './DraggableNavigation.jsx';
 import { api } from '../../services/api.js';
 import CRMGlobalSearch from '../crm/CRMGlobalSearch.jsx';
+import '../../styles/navigationDepth.css';
 
 export default function ERPHeader() {
   const location = useLocation();
