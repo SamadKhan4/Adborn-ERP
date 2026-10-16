@@ -113,6 +113,7 @@ test('HR sees HRMS, Employee Management and Departments without CRM access', () 
     'HRMS',
     'Employee Management',
     'Departments',
+    'My Mails',
   ]);
 });
 

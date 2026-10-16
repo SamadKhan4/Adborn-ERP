@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
 import MailDelivery from './pages/MailDelivery.jsx';
+import MyMail from './pages/MyMail.jsx';
 import { useAuthStore } from './store/authStore.js';
 import { api } from './services/api.js';
 afterEach(() => { cleanup(); vi.restoreAllMocks(); useAuthStore.getState().clearAuth(); });
@@ -30,4 +31,16 @@ test('mail delivery shows backend status and queues a resend', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Resend welcome' }));
   expect(await screen.findByRole('status')).toHaveProperty('textContent', 'Welcome email queued. Sending usually starts within 15 seconds.');
   expect(post).toHaveBeenCalledWith('/mail/users/user1/welcome', {});
+});
+test('users compose mail and read only the history returned by their own endpoint', async () => {
+  vi.spyOn(api, 'get').mockResolvedValue({ data: { data: { enabled: true, sender: 'company@example.test', totalPages: 1, items: [] } } });
+  const post = vi.spyOn(api, 'post').mockResolvedValue({ data: {} });
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MyMail /></QueryClientProvider>);
+  await screen.findByText('From: company@example.test');
+  fireEvent.change(screen.getByLabelText('To'), { target: { value: 'client@example.test' } });
+  fireEvent.change(screen.getByLabelText('Subject'), { target: { value: 'Update' } });
+  fireEvent.change(screen.getByLabelText('Message'), { target: { value: 'Ready for review' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Send email' }));
+  expect(await screen.findByText('Email queued for delivery.')).toBeTruthy();
+  expect(post).toHaveBeenCalledWith('/mail/send', { recipient: 'client@example.test', subject: 'Update', text: 'Ready for review' });
 });

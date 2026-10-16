@@ -7,6 +7,7 @@ import Login from './pages/auth/Login.jsx';
 import Logout from './pages/auth/Logout.jsx';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
 const MailDelivery = lazy(() => import('./pages/MailDelivery.jsx'));
+const MyMail = lazy(() => import('./pages/MyMail.jsx'));
 const Departments = lazy(() => import('./pages/Departments.jsx')); 
 const DepartmentDetail = lazy(() => import('./pages/DepartmentDetail.jsx'));
 import { authService } from './services/authService.js';
@@ -107,6 +108,7 @@ export default function App() {
           <Route path="/" element={<OverviewRoute />} />
           <Route path="/employee" element={<EmployeeRoute />} />
           <Route path="/mail" element={<Suspense fallback={<p role="status">Loading mail delivery…</p>}><MailDelivery /></Suspense>} />
+          <Route path="/my-mails" element={<Suspense fallback={<p role="status">Loading mails…</p>}><MyMail /></Suspense>} />
           <Route path="/team" element={<Suspense fallback={<p role="status">Loading team workspace...</p>}><TeamWorkspace /></Suspense>} />
           <Route path="/my-work" element={<Suspense fallback={<p role="status">Loading your team tasks...</p>}><MyWork /></Suspense>} />
           {[

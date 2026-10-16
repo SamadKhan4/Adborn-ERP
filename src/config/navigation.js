@@ -11,6 +11,7 @@ import {
   Files,
   ShieldCheck,
   CircleUserRound,
+  Mail,
 } from 'lucide-react';
 export const navigation = [
   { label: 'Team Workspace', path: '/team', icon: FolderKanban, allowedRoles: ['team_leader'] },
@@ -78,6 +79,7 @@ export const navigation = [
     allowedRoles: ['super_admin', 'admin', 'manager', 'hr'],
   },
   { label: 'Leads', path: '/leads', icon: PhoneCall, permission: 'leads.read' },
+  { label: 'My Mails', path: '/my-mails', icon: Mail, allowedRoles: ['super_admin', 'admin', 'manager', 'hr', 'executive', 'team_leader', 'employee', 'lead_caller', 'customer'] },
   {
     label: 'Projects',
     path: '/projects',
