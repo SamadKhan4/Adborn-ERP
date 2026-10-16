@@ -1,10 +1,12 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import ERPLayout from './components/layout/ERPLayout.jsx';
 const Dashboard = lazy(() => import('./pages/dashboard/Dashboard.jsx'));
 import ComingSoon from './pages/ComingSoon.jsx';
 import Login from './pages/auth/Login.jsx';
 import Logout from './pages/auth/Logout.jsx';
+import ResetPassword from './pages/auth/ResetPassword.jsx';
+const MailDelivery = lazy(() => import('./pages/MailDelivery.jsx'));
 const Departments = lazy(() => import('./pages/Departments.jsx')); 
 const DepartmentDetail = lazy(() => import('./pages/DepartmentDetail.jsx'));
 import { authService } from './services/authService.js';
@@ -62,6 +64,7 @@ function EmployeeRoute() {
   );
 }
 export default function App() {
+  const location = useLocation();
   const initialized = useAuthStore((state) => state.isInitialized);
   const role = useAuthStore((state) => state.user?.role);
   const [error, setError] = useState('');
@@ -86,7 +89,7 @@ export default function App() {
         );
     }
   }, []);
-  if (!initialized)
+  if (!initialized && location.pathname !== '/reset-password')
     return error ? (
       <main>
         <p role="alert">{error}</p>
@@ -98,10 +101,12 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<ERPLayout />}>
           <Route path="/" element={<OverviewRoute />} />
           <Route path="/employee" element={<EmployeeRoute />} />
+          <Route path="/mail" element={<Suspense fallback={<p role="status">Loading mail delivery…</p>}><MailDelivery /></Suspense>} />
           <Route path="/team" element={<Suspense fallback={<p role="status">Loading team workspace...</p>}><TeamWorkspace /></Suspense>} />
           <Route path="/my-work" element={<Suspense fallback={<p role="status">Loading your team tasks...</p>}><MyWork /></Suspense>} />
           {[

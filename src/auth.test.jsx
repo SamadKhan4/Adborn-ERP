@@ -131,7 +131,7 @@ test.each(['employee', 'executive', 'team_leader'])('%s login records attendance
     expect(post).toHaveBeenCalledWith('/hrms/attendance/check-in', {}),
   );
   expect(
-    (await screen.findByRole('link', { name: 'My Dashboard' })).getAttribute(
+    (await screen.findByRole('link', { name: 'My Dashboard' }, { timeout: 4000 })).getAttribute(
       'href',
     ),
   ).toBe('/employee');

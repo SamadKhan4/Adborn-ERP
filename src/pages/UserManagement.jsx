@@ -1,4 +1,5 @@
 import ManagementStats from '../components/common/ManagementStats.jsx';
+import { Link } from 'react-router-dom';
 import '../styles/userManagement.css';
 import { downloadJSON } from '../lib/download.js';
 import DeleteAccountDialog from '../components/hrms/DeleteAccountDialog.jsx';
@@ -244,6 +245,7 @@ export default function UserManagement() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link to="/mail" className="rounded-xl border border-[#dce7f0] bg-white px-4 py-2 text-xs font-semibold text-[#087dda]">Mail Delivery</Link>
           <Button
             variant="secondary"
             disabled={query.isFetching}

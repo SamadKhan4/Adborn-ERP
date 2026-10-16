@@ -1,0 +1,33 @@
+import React from 'react';
+import { afterEach, expect, test, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ResetPassword from './pages/auth/ResetPassword.jsx';
+import MailDelivery from './pages/MailDelivery.jsx';
+import { useAuthStore } from './store/authStore.js';
+import { api } from './services/api.js';
+afterEach(() => { cleanup(); vi.restoreAllMocks(); useAuthStore.getState().clearAuth(); });
+test('setup link validates confirmation and submits to the real reset API', async () => {
+  const post = vi.spyOn(api, 'post').mockResolvedValue({ data: { success: true } });
+  render(<MemoryRouter initialEntries={[`/reset-password#token=${'a'.repeat(64)}`]}><ResetPassword /></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'StrongPassword123' } });
+  fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'DifferentPassword123' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save password' }));
+  expect(screen.getByRole('alert').textContent).toContain('do not match');
+  expect(post).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'StrongPassword123' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save password' }));
+  expect(await screen.findByRole('status')).toHaveProperty('textContent', 'Password saved successfully. Sign in with your new password.');
+  expect(post).toHaveBeenCalledWith('/auth/reset-password', { token: 'a'.repeat(64), password: 'StrongPassword123' });
+});
+test('mail delivery shows backend status and queues a resend', async () => {
+  useAuthStore.setState({ user: { role: 'admin' } });
+  vi.spyOn(api, 'get').mockResolvedValue({ data: { data: { enabled: true, totalPages: 1, items: [{ _id: 'user1', name: 'Test Employee', email: 'test@example.test', role: 'employee', active: true, delivery: { status: 'FAILED', attempts: 5 } }] } } });
+  const post = vi.spyOn(api, 'post').mockResolvedValue({ data: {} });
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><MailDelivery /></MemoryRouter></QueryClientProvider>);
+  expect(await screen.findByText('FAILED')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Resend welcome' }));
+  expect(await screen.findByRole('status')).toHaveProperty('textContent', 'Welcome email queued. Sending usually starts within 15 seconds.');
+  expect(post).toHaveBeenCalledWith('/mail/users/user1/welcome', {});
+});
