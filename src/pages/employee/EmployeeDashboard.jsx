@@ -29,6 +29,8 @@ import HRMSDialog from '../../components/hrms/HRMSDialog.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { api } from '../../services/api.js';
 import MyWork from '../team/MyWork.jsx';
+import ExecutiveCRMPanel from '../../components/crm/ExecutiveCRMPanel.jsx';
+import { useAuthStore } from '../../store/authStore.js';
 
 const panel =
   'rounded-[20px] border border-[#e5edf6] bg-white shadow-[0_12px_38px_#315d860c]';
@@ -234,6 +236,7 @@ function LeaveDialog({ open, onOpenChange, onSaved }) {
 }
 
 export default function EmployeeDashboard() {
+  const role = useAuthStore((state) => state.user?.role);
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
@@ -374,6 +377,7 @@ export default function EmployeeDashboard() {
             <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_8px_25px_#315d860b]"><span className="grid size-10 place-items-center rounded-xl bg-[#eaf6ff] text-[#087dd8]"><CalendarDays size={19} /></span><div><strong className="block text-xs">{now.toLocaleDateString('en-IN', { weekday: 'long' })}</strong><span className="text-[10px] text-[#647ba2]">{date(now)}</span></div></div>
           </div>
         </header>
+        {role === 'executive' && <ExecutiveCRMPanel />}
 
         {activeTab !== 'dashboard' && (
           <section className="relative overflow-hidden rounded-[24px] border border-[#dceaf5] bg-gradient-to-r from-[#f7fbff] via-white to-[#eef8ff] p-5 shadow-[0_12px_35px_#315d860c] sm:p-6">

@@ -1,3 +1,4 @@
+import * as exportTools from './lib/dashboardExport.js';
 import React from 'react';
 import { beforeEach, afterEach, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
@@ -243,6 +244,7 @@ vi.mock('./components/dashboard/RevenueChart.jsx', () => ({
   default: () => <div>Invoice Trend</div>,
 }));
 const overviewFixture = {
+  date: '2026-10-16',
   generatedAt: new Date().toISOString(),
   finance: { paid: 12345, outstanding: 2500, overdue: 500, overdueCount: 1 },
   projects: { Active: 3, Planned: 2 },
@@ -266,7 +268,9 @@ const overviewFixture = {
 test('admin overview uses backend totals and refetches attendance when date changes', async () => {
   api.get.mockResolvedValue({ data: { data: overviewFixture } });
   renderHeader(<Dashboard />);
-  expect(await screen.findByText('80%')).toBeTruthy();
+  expect(
+    await screen.findByText('80%', { selector: '.live-kpi-value' }),
+  ).toBeTruthy();
   expect(screen.getByText('8 / 10 active staff checked in')).toBeTruthy();
   expect(screen.queryByText('Demo dashboard')).toBeNull();
   expect(screen.getByText('No open team tasks.')).toBeTruthy();
@@ -288,11 +292,69 @@ test('overview shows failure and supports retry without sample data', async () =
   expect(await screen.findByRole('alert')).toBeTruthy();
   expect(screen.queryByText('Paid Invoices')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-  expect(await screen.findByText('80%')).toBeTruthy();
+  expect(
+    await screen.findByText('80%', { selector: '.live-kpi-value' }),
+  ).toBeTruthy();
 });
 
-test.each(['admin', 'super_admin', 'manager', 'hr'])('%s navigation hides Team Workspace with stale grants', (role) => {
-  useAuthStore.setState({ user: { name: 'Account User', role, permissions: ['*', 'team.workspace.view', 'team.workspace.manage'] } });
-  renderHeader();
-  expect(screen.queryByRole('link', { name: 'Team Workspace' })).toBeNull();
+test.each(['admin', 'super_admin', 'manager', 'hr'])(
+  '%s navigation hides Team Workspace with stale grants',
+  (role) => {
+    useAuthStore.setState({
+      user: {
+        name: 'Account User',
+        role,
+        permissions: ['*', 'team.workspace.view', 'team.workspace.manage'],
+      },
+    });
+    renderHeader();
+    expect(screen.queryByRole('link', { name: 'Team Workspace' })).toBeNull();
+  },
+);
+
+test('overview can pause updates, export the real snapshot and reset the attendance date', async () => {
+  const exportSnapshot = vi
+    .spyOn(exportTools, 'downloadOverview')
+    .mockImplementation(() => {});
+  api.get.mockResolvedValue({ data: { data: overviewFixture } });
+  renderHeader(<Dashboard />);
+  await screen.findByText('80%', { selector: '.live-kpi-value' });
+  fireEvent.click(screen.getByText('More insights and dashboard tools'));
+  fireEvent.click(screen.getByRole('button', { name: 'Pause live updates' }));
+  expect(screen.getByText('Auto-refresh paused')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Export snapshot' }));
+  expect(exportSnapshot).toHaveBeenCalledWith(overviewFixture);
+  fireEvent.change(screen.getByLabelText('Attendance date'), {
+    target: { value: '2026-09-15' },
+  });
+  fireEvent.click(await screen.findByRole('button', { name: 'Back to today' }));
+  expect(screen.getByLabelText('Attendance date').value).not.toBe('2026-09-15');
+  expect(screen.queryByRole('link', { name: 'Team workspace' })).toBeNull();
+});
+test('snapshot CSV contains totals and dates with safe quoted cells', () => {
+  const csv = exportTools.overviewCSV({
+    ...overviewFixture,
+    date: '2026-10-16',
+    leads: { '=formula': 2 },
+  });
+  expect(csv).toContain('"Finance","paid","12345","INR"');
+  expect(csv).toContain('"Attendance","Date","2026-10-16","Asia/Kolkata"');
+  expect(csv).toContain('"\'=formula"');
+});
+
+test('Employee Pulse and Delivery Status are visible without opening extra tools and use live totals', async () => {
+  api.get.mockResolvedValue({ data: { data: overviewFixture } });
+  renderHeader(<Dashboard />);
+  const pulse = (
+    await screen.findByRole('heading', { name: 'Employee Pulse' })
+  ).closest('section');
+  const delivery = screen
+    .getByRole('heading', { name: 'Delivery Status' })
+    .closest('section');
+  expect(pulse.closest('details')).toBeNull();
+  expect(delivery.closest('details')).toBeNull();
+  expect(pulse.textContent).toContain('10');
+  expect(pulse.textContent).toContain('6');
+  expect(delivery.textContent).toContain('DONE');
+  expect(pulse.querySelector('a').getAttribute('href')).toBe('/hrms/employees');
 });

@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore.js';
 import { can, usePermissions } from './CRMShared.jsx';
+import '../../styles/crmDepth.css';
 const tabs = [
   ['Overview', '/crm', 'crm.dashboard.view'],
   ['Leads', '/crm/leads', 'leads'],
@@ -27,7 +28,7 @@ export default function CRMLayout() {
   if (!tabs.some((tab) => view(tab[2])))
     return <p role="alert">You do not have permission to access CRM.</p>;
   return (
-    <div className="space-y-5 text-[#173958]">
+    <div className="crm-depth space-y-5 text-[#173958]">
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#0987c4]">
           Sales workspace

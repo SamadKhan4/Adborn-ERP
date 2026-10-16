@@ -1,5 +1,5 @@
 import { tw } from '../../lib/tailwind.js';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -13,6 +13,7 @@ import { ChartNoAxesColumnIncreasing } from 'lucide-react';
 import SectionCard from '../common/SectionCard.jsx';
 import { currency } from '../../lib/dashboardFormat.js';
 export default function RevenueChart({ revenue = [] }) {
+  const chartId = useId().replaceAll(':', '');
   const [range, setRange] = useState('6');
   return (
     <SectionCard
@@ -54,9 +55,38 @@ export default function RevenueChart({ revenue = [] }) {
             margin={{ top: 12, right: 0, left: -20, bottom: 0 }}
             barGap={7}
           >
+            <defs>
+              <linearGradient
+                id={`${chartId}-billed`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="0%" stopColor="#0051a7" />
+                <stop offset="100%" stopColor="#008cd8" />
+              </linearGradient>
+              <linearGradient
+                id={`${chartId}-paid`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="0%" stopColor="#9bd6ff" />
+                <stop offset="100%" stopColor="#d1ecff" />
+              </linearGradient>
+            </defs>
             <CartesianGrid stroke="#e8eef6" vertical={false} />
             <XAxis
               dataKey="month"
+              tickFormatter={(month) =>
+                new Date(`${month}-01T00:00:00Z`).toLocaleDateString('en-IN', {
+                  month: 'short',
+                  year: 'numeric',
+                  timeZone: 'UTC',
+                })
+              }
               tickLine={false}
               axisLine={{ stroke: '#e8eef6' }}
               tick={{ fill: '#66738f', fontSize: 11 }}
@@ -80,7 +110,7 @@ export default function RevenueChart({ revenue = [] }) {
             <Bar
               name="Billed"
               dataKey="billed"
-              fill="#006eb5"
+              fill={`url(#${chartId}-billed)`}
               radius={[4, 4, 0, 0]}
               maxBarSize={24}
               isAnimationActive={false}
@@ -88,7 +118,7 @@ export default function RevenueChart({ revenue = [] }) {
             <Bar
               name="Paid"
               dataKey="paid"
-              fill="#a7d9fa"
+              fill={`url(#${chartId}-paid)`}
               radius={[4, 4, 0, 0]}
               maxBarSize={24}
               isAnimationActive={false}

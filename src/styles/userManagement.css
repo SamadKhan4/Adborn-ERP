@@ -1,0 +1,87 @@
+/* Match the shared ERP blue/white palette, retaining meaningful status colours. */
+.management-page.user-management-page {
+  color: #10254b;
+  font-family: Inter, sans-serif;
+}
+.management-page.user-management-page > div:first-child {
+  padding: 5px 0 18px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.management-page.user-management-page .management-stat {
+  background: #fff;
+  border-color: #e4edf7;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 0 #dce7f2,
+    0 8px 20px #315d8610;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.management-page.user-management-page .management-stat strong {
+  color: #10254b;
+}
+.management-page.user-management-page .management-stat p {
+  color: #63748d;
+}
+.management-page.user-management-page .management-stat small {
+  color: #8290a5;
+}
+.management-page.user-management-page .management-stat[data-tone='purple'] {
+  --metric: #006eb5;
+  --metric-soft: #e5f3fd;
+  --metric-border: #cbe4f7;
+}
+.management-page.user-management-page .management-stat[aria-pressed='true'] {
+  outline: 2px solid #0987c4;
+  outline-offset: 2px;
+  border-color: #cbe4f7;
+}
+.management-page.user-management-page .metric-filter {
+  color: #647d96;
+}
+.management-page.user-management-page .management-stat:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 4px 0 #d7e5f2,
+    0 13px 25px #315d8619;
+}
+.management-page.user-management-page > section {
+  border-color: #e5edf7;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 0 #dce7f2,
+    0 9px 22px #315d8610;
+}
+.management-page.user-management-page table thead tr {
+  background: #f5f9fd;
+  color: #6e8097;
+}
+.management-page.user-management-page table tbody tr:hover {
+  background: #f4faff;
+}
+.management-page.user-management-page .directory-tools select {
+  border-color: #dfe8f2;
+  color: #31516f;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 2px 0 #e5edf5;
+}
+.management-page.user-management-page .directory-tools button {
+  color: #006eb5;
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .management-page.user-management-page .management-stat:hover {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .management-page.user-management-page .management-stat {
+    transition: none;
+  }
+}

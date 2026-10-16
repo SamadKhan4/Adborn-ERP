@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { Outlet } from 'react-router-dom';
 import HRMSSidebar from './HRMSSidebar.jsx';
 import { Sheet } from '../ui/Sheet.jsx';
+import '../../styles/hrmsDepth.css';
 
 export default function HRMSLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -25,7 +26,7 @@ export default function HRMSLayout() {
   }, [mobileOpen, measure]);
 
   return (
-    <div ref={rootRef} className="-mx-2 min-h-[calc(100vh-180px)] font-['Inter',sans-serif] text-[#10254b] sm:mx-0">
+    <div ref={rootRef} className="hrms-depth -mx-2 min-h-[calc(100vh-180px)] font-['Inter',sans-serif] text-[#10254b] sm:mx-0">
       <div className="flex items-start gap-4">
         <motion.aside
           initial={false}

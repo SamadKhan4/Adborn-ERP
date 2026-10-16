@@ -5,7 +5,8 @@ const Dashboard = lazy(() => import('./pages/dashboard/Dashboard.jsx'));
 import ComingSoon from './pages/ComingSoon.jsx';
 import Login from './pages/auth/Login.jsx';
 import Logout from './pages/auth/Logout.jsx';
-import Departments from './pages/Departments.jsx';
+const Departments = lazy(() => import('./pages/Departments.jsx')); 
+const DepartmentDetail = lazy(() => import('./pages/DepartmentDetail.jsx'));
 import { authService } from './services/authService.js';
 import { useAuthStore } from './store/authStore.js';
 import { defaultRouteForRole } from './config/navigation.js';
@@ -114,7 +115,8 @@ export default function App() {
           ].map((path) => (
             <Route key={path} path={`/${path}`} element={<ComingSoon />} />
           ))}
-          <Route path="/departments" element={<Departments />} />
+          <Route path="/departments" element={<Suspense fallback={<p role="status">Loading departments...</p>}><Departments /></Suspense>} />
+          <Route path="/departments/:id" element={<Suspense fallback={<p role="status">Loading department...</p>}><DepartmentDetail /></Suspense>} />
           <Route path="/crm" element={<Suspense fallback={<p role="status">Loading CRM…</p>}><CRMLayout /></Suspense>}>
             <Route index element={<CRMOverview />} />
             <Route path="leads" element={<Leads />} />

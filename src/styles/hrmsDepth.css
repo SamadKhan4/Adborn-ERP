@@ -1,0 +1,41 @@
+/* HRMS content only; global ERP navigation and business behavior are unchanged. */
+.hrms-depth > div > aside,
+.hrms-depth main :is(section, article):not(section section, article article) {
+  box-shadow: inset 0 1px 0 #ffffffd9, 0 3px 0 #dce7f2, 0 9px 22px #315d8612;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+.hrms-depth main :is(section, article):not(section section, article article):hover {
+  border-color: #cfe1f3;
+  box-shadow: inset 0 1px 0 #ffffffed, 0 4px 0 #d7e5f2, 0 14px 28px #315d861c;
+}
+.hrms-depth .management-stat {
+  box-shadow: inset 0 1px 0 #ffffffc9, 0 3px 0 var(--metric-border), 0 9px 18px #315d8612;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.hrms-depth .management-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 1px 0 #fff, 0 5px 0 var(--metric-border), 0 14px 25px #315d861b;
+}
+.hrms-depth main :is(button, a)[class*="rounded"] {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.hrms-depth main button:not(:disabled):not([role="tab"])[class*="rounded"]:hover,
+.hrms-depth main a[class*="rounded"]:hover {
+  box-shadow: inset 0 1px 0 #ffffff60, 0 2px 0 #b7cee34d, 0 5px 12px #315d8614;
+}
+.hrms-depth main button:not(:disabled)[class*="rounded"]:active {
+  transform: translateY(1px);
+}
+.hrms-depth main :is(input, select, textarea) {
+  box-shadow: inset 0 1px 3px #315d8607;
+}
+.hrms-depth main :is(section, article):focus-within {
+  border-color: #a7cfea;
+}
+@media (hover: none) {
+  .hrms-depth .management-stat:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hrms-depth main :is(section, article, button, a) { transition: none; }
+  .hrms-depth main :is(section, article, button, a):hover { transform: none; }
+}

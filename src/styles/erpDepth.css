@@ -1,0 +1,29 @@
+/* Shared depth for every authenticated role. Navigation geometry is unchanged. */
+.erp-depth .erp-content :where(section, article, div)[class*="bg-white"][class*="rounded"] {
+  box-shadow: inset 0 1px 0 #ffffffd9, 0 3px 0 #dce7f2, 0 9px 22px #315d8612;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+.erp-depth .erp-content :where(section, article, div)[class*="bg-white"][class*="rounded"]:hover {
+  border-color: #cfe1f3;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 0 #d7e5f2, 0 14px 28px #315d861a;
+}
+.erp-depth .erp-content :where(button, a)[class*="rounded"]:not(nav *) {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.erp-depth .erp-content button[class*="rounded"]:not(:disabled):not(nav *):hover,
+.erp-depth .erp-content a[class*="rounded"]:not(nav *):hover {
+  box-shadow: inset 0 1px 0 #ffffff60, 0 2px 0 #b7cee350, 0 6px 13px #315d8616;
+}
+.erp-depth .erp-content button[class*="rounded"]:not(:disabled):not(nav *):active {
+  transform: translateY(1px);
+}
+.erp-depth .erp-content :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  box-shadow: inset 0 1px 3px #315d8608;
+}
+.erp-depth .erp-content :where(section, article)[class*="rounded"]:focus-within {
+  border-color: #a7cfea;
+}
+@media (prefers-reduced-motion: reduce) {
+  .erp-depth .erp-content :where(section, article, div, button, a) { transition: none; }
+  .erp-depth .erp-content button[class*="rounded"]:not(:disabled):active { transform: none; }
+}

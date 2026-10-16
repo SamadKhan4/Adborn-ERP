@@ -92,7 +92,7 @@ export const canView = (user, item) =>
       item.path === '/departments' ||
       user.role === 'super_admin' ||
       user.permissions?.includes(item.permission) ||
-      (item.label === 'HRMS' && user.permissions?.includes('hrms.self'));
+      (item.label === 'HRMS' && user.role !== 'executive' && user.permissions?.includes('hrms.self'));
 
 export const defaultRouteForRole = (role) => {
   if (['super_admin', 'admin', 'manager'].includes(role)) return '/';

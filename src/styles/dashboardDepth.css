@@ -1,0 +1,128 @@
+/* Overview only: navigation and live data remain unchanged. */
+.overview-depth.reference-dashboard .overview-pulse-grid > .section-card {
+  border: 1px solid #e1ebf6;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 0 #dce7f2, 0 10px 22px #315d8614;
+}
+.overview-depth.reference-dashboard .overview-pulse-grid > .section-card:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 1px 0 #fff, 0 6px 0 #d8e6f3, 0 17px 30px #315d861d;
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .overview-depth.reference-dashboard .overview-pulse-grid > .section-card:hover {
+    transform: none;
+  }
+}
+.overview-depth.reference-dashboard
+  :is(.live-kpi, .section-card, .attention-card) {
+  border: 1px solid #e1ebf6;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 0 #dce7f2,
+    0 8px 18px #315d8612;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  transform: translateY(0);
+}
+.overview-depth.reference-dashboard
+  :is(.live-kpi, .section-card, .attention-card):hover {
+  border-color: #cce2f6;
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 5px 0 #d8e6f3,
+    0 15px 28px #315d861c;
+}
+.overview-depth.reference-dashboard :is(.metric-icon, .section-icon) {
+  box-shadow:
+    inset 0 1px 1px #fff,
+    inset 0 -2px 2px #0074c810,
+    0 3px 6px #2370b118;
+}
+.overview-depth.reference-dashboard
+  :is(.reference-attendance-ring, .reference-client-ring) {
+  box-shadow:
+    inset 0 2px 3px #ffffff60,
+    inset 0 -3px 4px #004a9a20,
+    0 4px 9px #006eb51c;
+}
+.overview-depth.reference-dashboard
+  :is(
+    .overview-toolbar button,
+    .heading-controls .secondary-button,
+    .quick-actions a,
+    .section-actions select,
+    .date-control
+  ) {
+  border: 1px solid #dce8f5;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 2px 0 #dce6f1,
+    0 5px 10px #315d860d;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+.overview-depth.reference-dashboard
+  :is(.overview-toolbar button, .heading-controls .secondary-button):not(
+    :disabled
+  ):hover,
+.overview-depth.reference-dashboard .quick-actions a:hover {
+  transform: translateY(-2px);
+  background-color: #f4faff;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 0 #cfdfef,
+    0 8px 15px #315d8617;
+}
+.overview-depth.reference-dashboard
+  :is(.overview-toolbar button, .heading-controls .secondary-button):not(
+    :disabled
+  ):active,
+.overview-depth.reference-dashboard
+  :is(.quick-actions a, .attention-card):active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px #315d8610,
+    0 1px 0 #dce6f1;
+}
+.overview-depth.reference-dashboard :is(.live-kpi, .section-card):focus-within {
+  border-color: #8cc4ed;
+}
+.overview-depth.reference-dashboard
+  :is(button, a, summary, select):focus-visible {
+  outline: 2px solid #087ac5;
+  outline-offset: 3px;
+}
+@media (hover: none) {
+  .overview-depth.reference-dashboard
+    :is(.live-kpi, .section-card, .attention-card):hover {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .overview-depth.reference-dashboard
+    :is(
+      .live-kpi,
+      .section-card,
+      .attention-card,
+      .overview-toolbar button,
+      .heading-controls .secondary-button,
+      .quick-actions a
+    ) {
+    transition: none;
+  }
+  .overview-depth.reference-dashboard
+    :is(
+      .live-kpi,
+      .section-card,
+      .attention-card,
+      .overview-toolbar button,
+      .heading-controls .secondary-button,
+      .quick-actions a
+    ):hover {
+    transform: none;
+  }
+}

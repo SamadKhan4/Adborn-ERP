@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../services/api.js';
 import { Button } from '../../components/ui/Button.jsx';
@@ -17,7 +17,15 @@ import {
 } from '../../components/crm/CRMShared.jsx';
 import { label } from '../../../shared/crm.js';
 export default function FollowUps({ leadId }) {
-  const [tab, setTab] = useState('today');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(() =>
+    !leadId &&
+    ['today', 'overdue', 'upcoming', 'completedToday'].includes(
+      searchParams.get('tab'),
+    )
+      ? searchParams.get('tab')
+      : 'today',
+  );
   const [page, setPage] = useState(1);
   const [action, setAction] = useState(null);
   const permissions = usePermissions();

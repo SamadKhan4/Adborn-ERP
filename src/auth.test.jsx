@@ -40,13 +40,29 @@ beforeEach(() => {
     },
   );
   useAuthStore.getState().clearAuth();
-  vi.spyOn(api, 'get').mockImplementation((url) =>
-    Promise.resolve(
-      url === '/user-management'
-        ? { data: { data: { items: [] } } }
-        : { data: { data: { database: 'connected' } } },
-    ),
-  );
+  vi.spyOn(api, 'get').mockImplementation((url) => {
+    const fixtures = {
+      '/user-management': { items: [] },
+      '/departments': [],
+      '/notifications': { items: [], unreadCount: 0 },
+      '/hrms/employee-dashboard': {
+        employee: { name: 'Test Employee', role: 'employee', profile: {} },
+        todayAttendance: null, dailyReport: null, dailyReports: [],
+        recentAttendance: [], leaveBalances: [], holidays: [],
+        upcomingHolidays: [], payslips: [], announcements: [],
+        leaveRequests: [], assets: [], tasks: [],
+      },
+      '/team/my-work': { leader: null, tasks: [], standup: null, summary: [], pagination: {} },
+      '/dashboard/overview': {
+        date: '2026-10-16', generatedAt: new Date().toISOString(),
+        finance: { paid: 0, outstanding: 0, overdue: 0, overdueCount: 0 },
+        projects: {}, attendance: { employees: 0, present: 0, percent: 0, notCheckedIn: 0, reports: 0 },
+        pendingLeaves: 0, overdueFollowups: 0, taskSummary: {}, revenue: [],
+        leads: {}, clients: 0, invoices: [], tasks: [], activities: [],
+      },
+    };
+    return Promise.resolve({ data: { data: fixtures[url] ?? { database: 'connected' } } });
+  });
 });
 afterEach(() => {
   cleanup();

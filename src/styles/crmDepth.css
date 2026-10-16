@@ -1,0 +1,33 @@
+/* CRM content only. Keep global and CRM navigation layout unchanged. */
+.crm-depth :is(section, article, div)[class*="bg-white"][class*="rounded"] {
+  box-shadow: inset 0 1px 0 #ffffffdf, 0 3px 0 #dce7f2, 0 9px 22px #315d8612;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+.crm-depth :is(section, article, div)[class*="bg-white"][class*="rounded"]:hover {
+  border-color: #cee2f5;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 0 #d7e5f2, 0 14px 28px #315d861b;
+}
+.crm-depth :is(button, a)[class*="rounded"]:not(nav a) {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.crm-depth button[class*="rounded"]:not(:disabled):hover,
+.crm-depth a[class*="rounded"]:not(nav a):hover {
+  box-shadow: inset 0 1px 0 #ffffff66, 0 2px 0 #b7cee35c, 0 6px 13px #315d8618;
+}
+.crm-depth button[class*="rounded"]:not(:disabled):active {
+  transform: translateY(1px);
+}
+.crm-depth :is(input, select, textarea) {
+  box-shadow: inset 0 1px 3px #315d8609;
+}
+.crm-depth :is(section, article, div)[class*="bg-white"][class*="rounded"]:focus-within {
+  border-color: #a7cfea;
+}
+.crm-depth :is(button, a):focus-visible {
+  outline: 2px solid #087ac5;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .crm-depth :is(section, article, div, button, a) { transition: none; }
+  .crm-depth button[class*="rounded"]:not(:disabled):active { transform: none; }
+}
