@@ -36,8 +36,10 @@ api.interceptors.response.use(
           });
         await refreshPromise;
         return api(config);
-      } catch {
-        useAuthStore.getState().clearAuth();
+      } catch (refreshError) {
+        if (refreshError.response?.status === 401)
+          useAuthStore.getState().clearAuth();
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);

@@ -20,9 +20,9 @@ const fromInvoice = (invoice) => ({ ...invoice, client: { ...invoice.client }, p
 
 function Field({ label, children }) { return <label className="block text-[10px] font-semibold text-[#31516f]">{label}{children}</label>; }
 
-function InvoiceForm({ invoice, onClose }) {
+export function InvoiceForm({ invoice, business, onClose }) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState(() => invoice ? fromInvoice(invoice) : initialForm());
+  const [form, setForm] = useState(() => invoice ? fromInvoice(invoice) : business ? { ...initialForm(), gstRate: business.quotation?.gstRate ?? 18, client: { company: business.client.companyName, contactPerson: business.client.contactPerson, contactNumber: business.client.phone, email: business.client.email, address: Object.values(business.client.address || {}).join(', ') }, items: [{ title: business.project?.title || business.quotation?.title || 'Service', amount: business.project?.amount ?? business.quotation?.subtotal ?? 0 }] } : initialForm());
   const mutation = useMutation({
     mutationFn: async (payload) => invoice ? (await api.put(`/invoices/${invoice._id}`, payload)).data : (await api.post('/invoices', payload)).data,
     onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['invoices'] }); onClose(); },
@@ -34,7 +34,7 @@ function InvoiceForm({ invoice, onClose }) {
   const gst = subtotal * Number(form.gstRate || 0) / 100;
   const submit = (event) => {
     event.preventDefault();
-    mutation.mutate({ invoiceDate: form.invoiceDate, dueDate: form.dueDate, client: form.client, paymentDetails: form.paymentDetails, items: form.items.map((item) => ({ title: item.title.trim(), amount: Number(item.amount || 0) })).filter((item) => item.title), gstRate: Number(form.gstRate), status: form.status, ...(form.notes ? { notes: form.notes } : {}) });
+    mutation.mutate({ ...(business?.project ? { project: business.project._id } : {}), ...(business?.quotation ? { quotation: business.quotation._id } : {}), invoiceDate: form.invoiceDate, dueDate: form.dueDate, client: form.client, paymentDetails: form.paymentDetails, items: form.items.map((item) => ({ title: item.title.trim(), amount: Number(item.amount || 0) })).filter((item) => item.title), gstRate: Number(form.gstRate), status: form.status, ...(form.notes ? { notes: form.notes } : {}) });
   };
   const error = mutation.error?.response?.data?.error?.message || mutation.error?.message;
   return <form onSubmit={submit} className="grid gap-5 xl:grid-cols-[1fr_360px]">
@@ -58,7 +58,7 @@ function InvoiceForm({ invoice, onClose }) {
 
 export default function Invoices() {
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState(''); const [status, setStatus] = useState('');
+  const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('search') || ''); const [status, setStatus] = useState('');
   const [creating, setCreating] = useState(false); const [editing, setEditing] = useState(null); const [deleting, setDeleting] = useState(null); const [viewing, setViewing] = useState(null); const [viewPendingId, setViewPendingId] = useState(null);
   const query = useQuery({ queryKey: ['invoices'], queryFn: async ({ signal }) => (await api.get('/invoices', { signal })).data.data.items });
   const remove = useMutation({ mutationFn: async (id) => (await api.delete(`/invoices/${id}`)).data, onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['invoices'] }); setDeleting(null); } });
@@ -75,3 +75,6 @@ export default function Invoices() {
     <HRMSDialog open={Boolean(deleting)} onOpenChange={(open) => !open && setDeleting(null)} title="Archive invoice" description="The invoice will be removed from the active list."><p className="rounded-xl bg-[#fff5f5] p-4 text-xs text-[#8e3d44]">Archive <b>{deleting?.invoiceNumber}</b> for {deleting?.client.company}?</p><div className="mt-5 flex justify-end gap-3"><Button variant="secondary" onClick={() => setDeleting(null)}>Cancel</Button><Button onClick={() => remove.mutate(deleting._id)} disabled={remove.isPending}>{remove.isPending ? 'Archiving…' : 'Archive'}</Button></div></HRMSDialog>
   </div>;
 }
+
+
+

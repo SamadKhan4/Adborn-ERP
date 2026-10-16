@@ -60,15 +60,15 @@ function Field({ label, children }) {
   return <label className="block text-[10px] font-semibold text-[#31516f]">{label}{children}</label>;
 }
 
-function QuotationForm({ quotation, onClose }) {
+export function QuotationForm({ quotation, lead, onClose }) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState(() => quotation ? fromQuotation(quotation) : initialForm());
+  const [form, setForm] = useState(() => quotation ? fromQuotation(quotation) : lead ? { ...initialForm(), services: lead.interestedServices.length ? lead.interestedServices : ['web'], title: `${lead.companyName} - Proposal`, client: { company: lead.companyName, contactPerson: lead.contactPerson, contactNumber: lead.phone, email: lead.email }, items: (lead.interestedServices.length ? lead.interestedServices : ['web']).map((service) => ({ service, description: serviceLabels[service], amount: '' })) } : initialForm());
   const mutation = useMutation({
     mutationFn: async (payload) => quotation
       ? (await api.put(`/quotations/${quotation._id}`, payload)).data
-      : (await api.post('/quotations', payload)).data,
+      : (await api.post(lead ? `/crm/leads/${lead._id}/quotations` : '/quotations', payload)).data,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      await Promise.all(['quotations', 'leadQuotations', 'leadActivities', 'lead'].map((key) => queryClient.invalidateQueries({ queryKey: [key] })));
       onClose();
     },
   });
@@ -153,7 +153,7 @@ function QuotationForm({ quotation, onClose }) {
 
 export default function Quotations() {
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('search') || '');
   const [service, setService] = useState('');
   const [status, setStatus] = useState('');
   const [editing, setEditing] = useState(null);
@@ -162,7 +162,7 @@ export default function Quotations() {
   const [viewing, setViewing] = useState(null);
   const [viewPendingId, setViewPendingId] = useState(null);
   const query = useQuery({ queryKey: ['quotations'], queryFn: async ({ signal }) => (await api.get('/quotations', { signal })).data.data.items });
-  const remove = useMutation({ mutationFn: async (id) => (await api.delete(`/quotations/${id}`)).data, onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['quotations'] }); setDeleting(null); } });
+  const remove = useMutation({ mutationFn: async (id) => (await api.delete(`/quotations/${id}`)).data, onSuccess: async () => { await Promise.all(['quotations', 'leadQuotations', 'leadActivities', 'lead'].map((key) => queryClient.invalidateQueries({ queryKey: [key] }))); setDeleting(null); } });
   const rows = useMemo(() => (query.data || []).filter((item) => (!service || selectedServicesOf(item).includes(service)) && (!status || item.status === status) && `${item.quotationNumber} ${item.title} ${item.client.company}`.toLowerCase().includes(search.toLowerCase())), [query.data, search, service, status]);
   const download = async (quotation) => {
     const response = await api.get(`/quotations/${quotation._id}/download`, { responseType: 'blob' });
@@ -195,3 +195,5 @@ export default function Quotations() {
     <HRMSDialog open={Boolean(deleting)} onOpenChange={(open) => !open && setDeleting(null)} title="Archive quotation" description="The quotation will be removed from the active list."><p className="rounded-xl bg-[#fff5f5] p-4 text-xs text-[#8e3d44]">Archive <strong>{deleting?.quotationNumber}</strong> for {deleting?.client.company}?</p><div className="mt-5 flex justify-end gap-3"><Button variant="secondary" onClick={() => setDeleting(null)}>Cancel</Button><Button onClick={() => remove.mutate(deleting._id)} disabled={remove.isPending}>{remove.isPending ? 'Archiving…' : 'Archive'}</Button></div></HRMSDialog>
   </div>;
 }
+
+

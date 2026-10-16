@@ -13,6 +13,7 @@ import { defaultRouteForRole } from './config/navigation.js';
 const HRMSLayout = lazy(() => import('./components/hrms/HRMSLayout.jsx'));
 const HRMSDashboard = lazy(() => import('./pages/hrms/HRMSDashboard.jsx'));
 const Employees = lazy(() => import('./pages/hrms/Employees.jsx'));
+const EmployeeMonitoring = lazy(() => import('./pages/hrms/EmployeeMonitoring.jsx'));
 const Onboarding = lazy(() => import('./pages/hrms/Onboarding.jsx'));
 const HRMSModulePage = lazy(() => import('./pages/hrms/HRMSModulePage.jsx'));
 const Attendance = lazy(() => import('./pages/hrms/Attendance.jsx'));
@@ -22,6 +23,18 @@ const UserManagement = lazy(() => import('./pages/UserManagement.jsx'));
 const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard.jsx'));
 const Quotations = lazy(() => import('./pages/Quotations.jsx'));
 const Invoices = lazy(() => import('./pages/Invoices.jsx'));
+const CRMLayout = lazy(() => import('./components/crm/CRMLayout.jsx'));
+const Leads = lazy(() => import('./pages/crm/Leads.jsx'));
+const LeadDetail = lazy(() => import('./pages/crm/LeadDetail.jsx'));
+const FollowUps = lazy(() => import('./pages/crm/FollowUps.jsx'));
+const Pipeline = lazy(() => import('./pages/crm/Pipeline.jsx'));
+const ClientDetail = lazy(() => import('./pages/crm/ClientDetail.jsx'));
+const CRMOverview = lazy(() => import('./pages/crm/CRMOverview.jsx'));
+const CRMReports = lazy(() => import('./pages/crm/CRMReports.jsx'));
+const CRMSettings = lazy(() => import('./pages/crm/CRMSettings.jsx'));
+const ActivityTimeline = lazy(() => import('./components/crm/ActivityTimeline.jsx'));
+const TeamWorkspace = lazy(() => import('./pages/team/TeamWorkspace.jsx'));
+const MyWork = lazy(() => import('./pages/team/MyWork.jsx'));
 
 function ProtectedRoute() {
   const user = useAuthStore((state) => state.user);
@@ -39,7 +52,7 @@ function OverviewRoute() {
 }
 function EmployeeRoute() {
   const role = useAuthStore((state) => state.user?.role);
-  if (!['employee', 'executive'].includes(role))
+  if (!['employee', 'executive', 'team_leader'].includes(role))
     return <Navigate to={defaultRouteForRole(role)} replace />;
   return (
     <Suspense fallback={<p role="status">Loading employee dashboardâ€¦</p>}>
@@ -88,8 +101,9 @@ export default function App() {
         <Route element={<ERPLayout />}>
           <Route path="/" element={<OverviewRoute />} />
           <Route path="/employee" element={<EmployeeRoute />} />
+          <Route path="/team" element={<Suspense fallback={<p role="status">Loading team workspace...</p>}><TeamWorkspace /></Suspense>} />
+          <Route path="/my-work" element={<Suspense fallback={<p role="status">Loading your team tasks...</p>}><MyWork /></Suspense>} />
           {[
-            'crm',
             'projects',
             'payments',
             'reports',
@@ -101,6 +115,17 @@ export default function App() {
             <Route key={path} path={`/${path}`} element={<ComingSoon />} />
           ))}
           <Route path="/departments" element={<Departments />} />
+          <Route path="/crm" element={<Suspense fallback={<p role="status">Loading CRM…</p>}><CRMLayout /></Suspense>}>
+            <Route index element={<CRMOverview />} />
+            <Route path="leads" element={<Leads />} />
+            <Route path="leads/:id" element={<LeadDetail />} />
+            <Route path="follow-ups" element={<FollowUps />} />
+            <Route path="pipeline" element={<Pipeline />} />
+            <Route path="clients/:id" element={<ClientDetail />} />
+            <Route path="reports" element={<CRMReports />} />
+            <Route path="settings" element={<CRMSettings />} />
+            <Route path="activities" element={<ActivityTimeline />} />
+          </Route>
           <Route path="/quotations" element={<Suspense fallback={<p role="status">Loading quotationsâ€¦</p>}><Quotations /></Suspense>} />
           <Route path="/invoices" element={<Suspense fallback={<p role="status">Loading invoices…</p>}><Invoices /></Suspense>} />
           <Route
@@ -123,13 +148,14 @@ export default function App() {
             path="/hrms"
             element={
               <Suspense fallback={<p role="status">Loading HRMS workspace…</p>}>
-                <HRMSLayout />
+              {role === 'team_leader' ? <Navigate to="/employee" replace /> : <HRMSLayout />}
               </Suspense>
             }
           >
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<HRMSDashboard />} />
             <Route path="employees" element={<Employees />} />
+            <Route path="employees/:id/monitoring" element={['super_admin', 'admin', 'manager', 'hr'].includes(role) ? <EmployeeMonitoring /> : <Navigate to={defaultRouteForRole(role)} replace />} />
             <Route path="onboarding" element={<Onboarding />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="holidays" element={<HolidayCalendar />} />

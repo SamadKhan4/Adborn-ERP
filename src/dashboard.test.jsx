@@ -64,7 +64,7 @@ test('ungranted modules and overview remain hidden for employees', () => {
   expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull();
   expect(screen.queryByRole('link', { name: 'Invoices' })).toBeNull();
 });
-test('HR sees only HRMS and Departments in global navigation', () => {
+test('HR sees HRMS, Employee Management and Departments without CRM access', () => {
   useAuthStore.setState({
     user: {
       name: 'HR User',
@@ -74,7 +74,16 @@ test('HR sees only HRMS and Departments in global navigation', () => {
   });
   renderHeader();
   const links = screen.getByRole('navigation', { name: 'Primary navigation' }).querySelectorAll('a');
-  expect([...links].map((link) => link.textContent.trim())).toEqual(['HRMS', 'Departments']);
+  expect([...links].map((link) => link.textContent.trim())).toEqual(['HRMS', 'Employee Management', 'Departments']);
+});
+
+test('Team Leader sees employee dashboard and team tools without CRM or HRMS even with stale grants', () => {
+  useAuthStore.setState({ user: { name: 'Team Leader', role: 'team_leader', permissions: ['dashboard.view', 'hrms.self', 'hrms.read', 'crm.leads.view', 'crm.dashboard.view', 'team.workspace.view'] } });
+  renderHeader();
+  expect(screen.getByRole('link', { name: 'My Dashboard' }).getAttribute('href')).toBe('/employee');
+  expect(screen.getByRole('link', { name: 'Team Workspace' })).toBeTruthy();
+  expect(screen.queryByRole('link', { name: 'HRMS' })).toBeNull();
+  expect(screen.queryByRole('link', { name: 'CRM' })).toBeNull();
 });
 function RouteProbe() {
   const location = useLocation();

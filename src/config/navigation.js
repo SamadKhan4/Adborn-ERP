@@ -13,11 +13,13 @@ import {
   CircleUserRound,
 } from 'lucide-react';
 export const navigation = [
+  { label: 'Team Workspace', path: '/team', icon: FolderKanban, permission: 'team.workspace.view' },
+  { label: 'My Team Work', path: '/my-work', icon: CircleUserRound, allowedRoles: ['employee', 'executive', 'lead_caller', 'team_leader'] },
   {
     label: 'My Dashboard',
     path: '/employee',
     icon: CircleUserRound,
-    allowedRoles: ['employee', 'executive'],
+    allowedRoles: ['employee', 'executive', 'team_leader'],
   },
   {
     label: 'Overview',
@@ -38,7 +40,13 @@ export const navigation = [
     icon: ShieldCheck,
     allowedRoles: ['super_admin', 'admin', 'manager'],
   },
-  { label: 'CRM', path: '/crm', icon: ContactRound, permission: 'crm.read' },
+  {
+    label: 'Employee Management',
+    path: '/hrms/employees',
+    icon: UsersRound,
+    allowedRoles: ['super_admin', 'admin', 'manager', 'hr'],
+  },
+  { label: 'CRM', path: '/crm', icon: ContactRound, permission: 'crm.dashboard.view' },
   {
     label: 'Quotations',
     path: '/quotations',
@@ -78,7 +86,7 @@ export const navigation = [
   },
 ];
 export const canView = (user, item) =>
-  item.allowedRoles
+  user.role === 'team_leader' && ['CRM', 'HRMS'].includes(item.label) ? false : item.label === 'CRM' ? user.role === 'super_admin' || user.permissions?.some((permission) => permission.startsWith('crm.')) : item.allowedRoles
     ? item.allowedRoles.includes(user.role)
     : item.path === '/' ||
       item.path === '/departments' ||
@@ -88,7 +96,8 @@ export const canView = (user, item) =>
 
 export const defaultRouteForRole = (role) => {
   if (['super_admin', 'admin', 'manager'].includes(role)) return '/';
-  if (['hr', 'team_leader'].includes(role)) return '/hrms/dashboard';
+  if (role === 'team_leader') return '/employee';
+  if (role === 'hr') return '/hrms/dashboard';
   if (['employee', 'executive'].includes(role)) return '/employee';
   return '/departments';
 };

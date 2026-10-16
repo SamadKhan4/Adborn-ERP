@@ -7,7 +7,7 @@ export const authService = {
     const { data } = await api.post('/auth/login', credentials);
     queryClient.clear();
     useAuthStore.getState().setSession(data.data);
-    if (['employee', 'executive'].includes(data.data.user.role)) {
+    if (['employee', 'executive', 'team_leader'].includes(data.data.user.role)) {
       try {
         await api.post('/hrms/attendance/check-in', {});
       } catch (error) {
@@ -17,11 +17,18 @@ export const authService = {
     return data.data.user;
   },
   restoreSession() {
-    restorePromise ||= api
-      .post('/auth/refresh')
-      .then(({ data }) => {
+    restorePromise ||= (async () => {
+      if (useAuthStore.getState().accessToken) {
+        const { data } = await api.get('/auth/me');
+        useAuthStore.getState().setSession({
+          user: data.data,
+          accessToken: useAuthStore.getState().accessToken,
+        });
+      } else {
+        const { data } = await api.post('/auth/refresh');
         useAuthStore.getState().setSession(data.data);
-      })
+      }
+    })()
       .catch((error) => {
         if (error.response?.status === 401) useAuthStore.getState().clearAuth();
         else throw error;
@@ -33,7 +40,7 @@ export const authService = {
   },
   async logout() {
     const role = useAuthStore.getState().user?.role;
-    if (['employee', 'executive'].includes(role)) {
+    if (['employee', 'executive', 'team_leader'].includes(role)) {
       try {
         await api.post('/hrms/attendance/check-out', {});
       } catch (error) {

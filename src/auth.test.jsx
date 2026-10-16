@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App.jsx';
 import { api } from './services/api.js';
 import { useAuthStore } from './store/authStore.js';
+import { authService } from './services/authService.js';
 const session = {
   user: { name: 'Test Admin', role: 'admin' },
   accessToken: 'test-access',
@@ -89,11 +90,11 @@ test('invalid login remains on the form with an error', async () => {
   );
   expect(useAuthStore.getState().user).toBeNull();
 });
-test('employee login records attendance and opens the employee workspace', async () => {
+test.each(['employee', 'executive', 'team_leader'])('%s login records attendance and opens the employee workspace', async (role) => {
   const employeeSession = {
     user: {
       name: 'Test Employee',
-      role: 'employee',
+      role,
       permissions: ['dashboard.view', 'hrms.self'],
     },
     accessToken: 'employee-access',
@@ -134,6 +135,28 @@ test('restores an existing refresh-cookie session before rendering protected con
   ).toBeTruthy();
   expect(post).toHaveBeenCalledWith('/auth/refresh');
 });
+test('page reload restores the saved access token without rotating the refresh cookie', async () => {
+  useAuthStore.getState().setSession(session);
+  const saved = localStorage.getItem('adborn-auth');
+  useAuthStore.setState({
+    user: null,
+    accessToken: null,
+    isInitialized: false,
+  });
+  localStorage.setItem('adborn-auth', saved);
+  await useAuthStore.persist.rehydrate();
+  expect(useAuthStore.getState().isInitialized).toBe(false);
+  const get = vi
+    .spyOn(api, 'get')
+    .mockResolvedValue({ data: { data: session.user } });
+  const post = vi.spyOn(api, 'post');
+  await authService.restoreSession();
+  expect(get).toHaveBeenCalledWith('/auth/me');
+  expect(post).not.toHaveBeenCalled();
+  expect(useAuthStore.getState().accessToken).toBe(session.accessToken);
+  expect(useAuthStore.getState().isInitialized).toBe(true);
+});
+
 test('logout revokes the session and redirects to login', async () => {
   useAuthStore.getState().setSession(session);
   const post = vi

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -28,6 +28,7 @@ import {
 import HRMSDialog from '../../components/hrms/HRMSDialog.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { api } from '../../services/api.js';
+import MyWork from '../team/MyWork.jsx';
 
 const panel =
   'rounded-[20px] border border-[#e5edf6] bg-white shadow-[0_12px_38px_#315d860c]';
@@ -54,7 +55,7 @@ const employeeTabDescriptions = {
   holidays: 'See the complete office holiday calendar published by HR.',
   profile: 'Review your employment, contact, and work information.',
   assets: 'View company equipment assigned to you and acknowledge receipt.',
-  tasks: 'Follow your employee onboarding and compliance checklist.',
+  tasks: 'Review tasks assigned by your Team Leader, update progress, report blockers, and submit your stand-up.',
   announcements: 'Read the latest company notices and HR updates.',
 };
 
@@ -234,11 +235,11 @@ function LeaveDialog({ open, onOpenChange, onSaved }) {
 
 export default function EmployeeDashboard() {
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [now, setNow] = useState(() => new Date());
-  const [activeTab, setActiveTab] = useState(() => {
-    const hash = window.location.hash.slice(1);
-    return employeeLinks.some(([id]) => id === hash) ? hash : 'dashboard';
-  });
+  const requestedTab = location.hash.slice(1);
+  const activeTab = employeeLinks.some(([id]) => id === requestedTab) ? requestedTab : 'dashboard';
   const [reportOpen, setReportOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
   useEffect(() => {
@@ -280,8 +281,7 @@ export default function EmployeeDashboard() {
     ['Present', 'Late'].includes(item.status),
   ).length;
   const openTab = (id) => {
-    setActiveTab(id);
-    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${id}`);
+    navigate({ pathname: location.pathname, search: location.search, hash: `#${id}` }, { replace: true });
   };
 
   async function downloadPayslip(run) {
@@ -490,6 +490,7 @@ export default function EmployeeDashboard() {
         </article>}
         </section>}
 
+        {['dashboard', 'tasks'].includes(activeTab) && <section id="tasks" className="scroll-mt-24"><MyWork embedded compact={activeTab === 'dashboard'} /></section>}
         {['dashboard', 'holidays', 'tasks'].includes(activeTab) && <section className={activeTab === 'dashboard' ? 'grid gap-4 xl:grid-cols-[1.1fr_0.9fr]' : ''}>
         {['dashboard', 'holidays'].includes(activeTab) && <article id="holidays" className={`${panel} scroll-mt-24 overflow-hidden`}>
             <div className="flex items-center justify-between p-4"><div><h2 className="text-sm font-bold">Holiday Calendar</h2><p className="mt-1 text-[9px] text-[#7a8ca3]">Published office holidays for {now.getFullYear()}</p></div><Palmtree size={19} className="text-[#12a3e3]" /></div>
@@ -497,8 +498,8 @@ export default function EmployeeDashboard() {
             {!holidays.length && <Empty>No holidays have been published for this year.</Empty>}
         </article>}
 
-        {['dashboard', 'tasks'].includes(activeTab) && <article id="tasks" className={`${panel} scroll-mt-24 p-4 sm:p-5`}>
-            <div className="flex items-center justify-between"><div><h2 className="text-sm font-bold">My Tasks</h2><p className="mt-1 text-[9px] text-[#7a8ca3]">Your employee onboarding checklist</p></div><ListChecks size={19} className="text-[#087ce3]" /></div>
+        {['dashboard', 'tasks'].includes(activeTab) && <article id="onboarding-checklist" className={`${panel} scroll-mt-24 p-4 sm:p-5`}>
+            <div className="flex items-center justify-between"><div><h2 className="text-sm font-bold">Onboarding Checklist</h2><p className="mt-1 text-[9px] text-[#7a8ca3]">Your employee onboarding checklist</p></div><ListChecks size={19} className="text-[#087ce3]" /></div>
             <ul className="mt-4 space-y-2">{tasks.map((task) => <li key={task.id || task.label} className="flex items-center gap-3 rounded-xl border border-[#e8eef4] bg-[#f8fbfd] p-3"><span className={`grid size-6 shrink-0 place-items-center rounded-full ${task.completed ? 'bg-[#dff8ed] text-[#07875d]' : 'bg-[#fff3df] text-[#b66d00]'}`}>{task.completed ? <Check size={13} /> : <Clock3 size={13} />}</span><div className="min-w-0"><strong className="block truncate text-[10px] text-[#173958]">{task.label}</strong><span className="text-[8px] text-[#71849d]">{task.completed ? 'Completed' : task.required === false ? 'Optional' : 'Pending'}</span></div></li>)}</ul>
             {!tasks.length && <Empty>No employee tasks are currently assigned.</Empty>}
         </article>}

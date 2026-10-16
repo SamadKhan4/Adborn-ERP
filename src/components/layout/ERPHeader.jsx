@@ -17,6 +17,7 @@ import { useAuthStore } from '../../store/authStore.js';
 import { navigation, canView } from '../../config/navigation.js';
 import DraggableNavigation from './DraggableNavigation.jsx';
 import { api } from '../../services/api.js';
+import CRMGlobalSearch from '../crm/CRMGlobalSearch.jsx';
 
 export default function ERPHeader() {
   const location = useLocation();
@@ -41,6 +42,10 @@ export default function ERPHeader() {
   const toggle = (name) => setMenu(menu === name ? null : name);
   // The current API returns roles only. Never infer grants for non-super-admins.
   const items = navigation.filter((item) => canView(user, item)).map((item) => item.label === 'HRMS' && user.permissions?.includes('hrms.self') && !user.permissions?.includes('hrms.read') ? { ...item, path: '/hrms/onboarding' } : item);
+  if (user.role === 'team_leader') {
+    const order = { '/employee': 0, '/my-work': 1, '/team': 2 };
+    items.sort((left, right) => (order[left.path] ?? 99) - (order[right.path] ?? 99));
+  }
   const initials = user.name
     .split(' ')
     .map((word) => word[0])
@@ -164,7 +169,7 @@ export default function ERPHeader() {
                   </Link>)}
                 </div> : <p className="px-2 py-7 text-center">No notifications yet.</p>}
               </div>
-            ) : menu === 'profile' ? (
+            ) : menu === 'search' ? <CRMGlobalSearch onNavigate={() => setMenu(null)} /> : menu === 'profile' ? (
               <>
                 <div className={tw('profile-info')}>
                   <UserRound size={20} />
