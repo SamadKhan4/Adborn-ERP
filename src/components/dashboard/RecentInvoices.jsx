@@ -1,24 +1,23 @@
 import { tw } from '../../lib/tailwind.js';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Search, MoreHorizontal } from 'lucide-react';
+import { FileText, Search } from 'lucide-react';
 import SectionCard from '../common/SectionCard.jsx';
-import Modal from '../common/Modal.jsx';
-import { invoices, currency } from '../../data/dashboardDemo.js';
-export default function RecentInvoices() {
+import { currency, displayDate } from '../../lib/dashboardFormat.js';
+export default function RecentInvoices({ invoices = [] }) {
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('All Status');
-  const [selected, setSelected] = useState(null);
+  const [status, setStatus] = useState('');
   const rows = invoices.filter(
     (row) =>
-      (status === 'All Status' || row.status === status) &&
-      `${row.id} ${row.client} ${row.project}`
+      (!status || row.status === status) &&
+      `${row.invoiceNumber} ${row.client?.company}`
         .toLowerCase()
         .includes(search.toLowerCase()),
   );
   return (
     <SectionCard
       title="Recent Invoices"
+      subtitle="Latest 8 invoices"
       icon={FileText}
       className={tw('invoices-card')}
       actions={
@@ -27,8 +26,8 @@ export default function RecentInvoices() {
           <label className={tw('search-field')}>
             <Search size={17} />
             <input
-              aria-label="Search demo invoices"
-              placeholder="Search invoices…"
+              aria-label="Search recent invoices"
+              placeholder="Search invoices"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -38,9 +37,11 @@ export default function RecentInvoices() {
             value={status}
             onChange={(event) => setStatus(event.target.value)}
           >
-            {['All Status', 'Paid', 'Pending', 'Sent', 'Overdue'].map(
+            {['', 'Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'].map(
               (value) => (
-                <option key={value}>{value}</option>
+                <option key={value} value={value}>
+                  {value || 'All Status'}
+                </option>
               ),
             )}
           </select>
@@ -54,12 +55,10 @@ export default function RecentInvoices() {
               {[
                 'Invoice #',
                 'Client',
-                'Project',
                 'Issue Date',
                 'Due Date',
                 'Amount',
                 'Status',
-                'Actions',
               ].map((title) => (
                 <th key={title}>{title}</th>
               ))}
@@ -67,58 +66,36 @@ export default function RecentInvoices() {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id}>
-                <td className={tw('invoice-id')}>{row.id}</td>
+              <tr key={row._id}>
                 <td>
-                  <span className={tw('client-cell')}>
-                    <span className={tw('client-avatar')}>{row.client[0]}</span>
-                    {row.client}
-                  </span>
+                  <Link
+                    className={tw('invoice-id')}
+                    to={`/invoices?search=${encodeURIComponent(row.invoiceNumber)}`}
+                  >
+                    {row.invoiceNumber}
+                  </Link>
                 </td>
-                <td>{row.project}</td>
-                <td>{row.issue}</td>
-                <td>{row.due}</td>
-                <td className={tw('invoice-amount')}>{currency(row.amount)}</td>
+                <td>{row.client?.company || '-'}</td>
+                <td>{displayDate(row.invoiceDate)}</td>
+                <td>{displayDate(row.dueDate)}</td>
+                <td className={tw('invoice-amount')}>
+                  {currency(row.grandTotal)}
+                </td>
                 <td>
                   <span
                     className={tw(`status-badge ${row.status.toLowerCase()}`)}
                   >
-                    <i />
                     {row.status}
                   </span>
-                </td>
-                <td>
-                  <button
-                    className={tw('table-action')}
-                    aria-label={`Preview ${row.id}`}
-                    onClick={() => setSelected(row)}
-                  >
-                    <MoreHorizontal size={18} />
-                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {!rows.length && (
-          <p className={tw('empty-state')}>
-            No demo invoices match your filters.
-          </p>
+          <p className={tw('empty-state')}>No invoices match your filters.</p>
         )}
       </div>
-      {selected && (
-        <Modal label="Demo invoice preview" onClose={() => setSelected(null)}>
-          <h2>{selected.id} · Demo preview</h2>
-          <p>
-            {selected.client} — {selected.project}
-          </p>
-          <strong>{currency(selected.amount)}</strong>
-          <p>Demonstration only. Invoice management is coming soon.</p>
-          <button autoFocus onClick={() => setSelected(null)}>
-            Close preview
-          </button>
-        </Modal>
-      )}
     </SectionCard>
   );
 }

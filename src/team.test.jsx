@@ -50,8 +50,8 @@ test('employee submits a structured daily stand-up', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Save stand-up' }));
   await waitFor(() => expect(post).toHaveBeenCalledWith('/team/standups', { leader: leader._id, yesterday: '', today: 'Complete the feature', blockers: '' }));
 });
-test('HR has no implicit Team Leader workspace access', () => {
-  useAuthStore.getState().setSession({ user: { role: 'hr', permissions: ['hrms.read'] }, accessToken: 'test' });
+test.each(['admin', 'super_admin', 'manager', 'hr'])('%s cannot open Team Workspace even with stale grants', (role) => {
+  useAuthStore.getState().setSession({ user: { role, permissions: ['*', 'team.workspace.view', 'team.workspace.manage', 'hrms.read'] }, accessToken: 'test' });
   mount(<TeamWorkspace />);
   expect(screen.getByRole('alert').textContent).toContain('do not have permission');
   expect(api.get).not.toHaveBeenCalled();

@@ -13,7 +13,7 @@ import {
   CircleUserRound,
 } from 'lucide-react';
 export const navigation = [
-  { label: 'Team Workspace', path: '/team', icon: FolderKanban, permission: 'team.workspace.view' },
+  { label: 'Team Workspace', path: '/team', icon: FolderKanban, allowedRoles: ['team_leader'] },
   { label: 'My Team Work', path: '/my-work', icon: CircleUserRound, allowedRoles: ['employee', 'executive', 'lead_caller', 'team_leader'] },
   {
     label: 'My Dashboard',

@@ -11,13 +11,13 @@ import {
 } from 'recharts';
 import { ChartNoAxesColumnIncreasing } from 'lucide-react';
 import SectionCard from '../common/SectionCard.jsx';
-import { revenue, currency } from '../../data/dashboardDemo.js';
-export default function RevenueChart() {
+import { currency } from '../../lib/dashboardFormat.js';
+export default function RevenueChart({ revenue = [] }) {
   const [range, setRange] = useState('6');
   return (
     <SectionCard
-      title="Revenue Trend"
-      subtitle="Monthly revenue and expense overview"
+      title="Invoice Trend"
+      subtitle="INR totals by invoice month; paid is current invoice status"
       icon={ChartNoAxesColumnIncreasing}
       className={tw('revenue-card')}
       actions={
@@ -25,11 +25,11 @@ export default function RevenueChart() {
           <div className={tw('chart-legend')}>
             <span>
               <i />
-              Revenue
+              Billed
             </span>
             <span>
               <i />
-              Expenses
+              Paid
             </span>
           </div>
           <select
@@ -46,7 +46,7 @@ export default function RevenueChart() {
       <div
         className={tw('revenue-chart')}
         role="img"
-        aria-label="Demo monthly revenue and expenses grouped bar chart"
+        aria-label="Monthly billed and paid invoices grouped bar chart"
       >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -78,16 +78,16 @@ export default function RevenueChart() {
               cursor={{ fill: '#f0f7fc' }}
             />
             <Bar
-              name="Revenue"
-              dataKey="revenue"
+              name="Billed"
+              dataKey="billed"
               fill="#006eb5"
               radius={[4, 4, 0, 0]}
               maxBarSize={24}
               isAnimationActive={false}
             />
             <Bar
-              name="Expenses"
-              dataKey="expenses"
+              name="Paid"
+              dataKey="paid"
               fill="#a7d9fa"
               radius={[4, 4, 0, 0]}
               maxBarSize={24}

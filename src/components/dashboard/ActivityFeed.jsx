@@ -1,46 +1,38 @@
 import { tw } from '../../lib/tailwind.js';
-import { Link } from 'react-router-dom';
-import {
-  Zap,
-  Folder,
-  CircleDollarSign,
-  UserRound,
-  UsersRound,
-  Check,
-} from 'lucide-react';
+import { Zap } from 'lucide-react';
 import SectionCard from '../common/SectionCard.jsx';
-import { activities } from '../../data/dashboardDemo.js';
-const icons = {
-  project: Folder,
-  payment: CircleDollarSign,
-  leave: UserRound,
-  client: UsersRound,
-  task: Check,
-};
-export default function ActivityFeed() {
+export default function ActivityFeed({ activities = [] }) {
   return (
     <SectionCard
       title="Recent Activity"
+      subtitle="Latest system events"
       icon={Zap}
-      actions={<Link to="/activity">View all</Link>}
     >
       <ul className={tw('activity-list')}>
-        {activities.map((activity) => {
-          const Icon = icons[activity.icon];
-          return (
-            <li key={activity.title}>
-              <span className={tw(`activity-icon ${activity.icon}`)}>
-                <Icon size={19} />
-              </span>
-              <div>
-                <strong>{activity.title}</strong>
-                <p>{activity.detail}</p>
-              </div>
-              <time>{activity.time}</time>
-            </li>
-          );
-        })}
+        {activities.map((item) => (
+          <li key={item._id}>
+            <span className={tw('activity-icon')}>
+              <Zap size={18} />
+            </span>
+            <div>
+              <strong>{item.action.replaceAll(/[._]/g, ' ')}</strong>
+              <p>{item.user?.name || 'System'}</p>
+            </div>
+            <time dateTime={item.createdAt}>
+              {new Date(item.createdAt).toLocaleString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </time>
+          </li>
+        ))}
       </ul>
+      {!activities.length && (
+        <p className={tw('empty-state')}>No activity recorded yet.</p>
+      )}
     </SectionCard>
   );
 }

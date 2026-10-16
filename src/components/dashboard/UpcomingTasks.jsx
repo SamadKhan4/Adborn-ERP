@@ -2,34 +2,41 @@ import { tw } from '../../lib/tailwind.js';
 import { Link } from 'react-router-dom';
 import { CircleCheck } from 'lucide-react';
 import SectionCard from '../common/SectionCard.jsx';
-import { tasks } from '../../data/dashboardDemo.js';
-export default function UpcomingTasks() {
+export default function UpcomingTasks({ tasks = [] }) {
   return (
     <SectionCard
-      title="Upcoming Tasks"
+      title="Open Team Tasks"
+      subtitle="Nearest deadlines first"
       icon={CircleCheck}
-      actions={<Link to="/tasks">View all</Link>}
+      actions={<Link to="/hrms/employees">Monitor employees</Link>}
     >
       <ul className={tw('task-list')}>
         {tasks.map((task) => (
-          <li key={task.title}>
-            <input
-              type="checkbox"
-              disabled
-              aria-label={`${task.title} — demo task, editing unavailable`}
-            />
+          <li key={task._id}>
+            <CircleCheck size={18} />
             <div>
               <strong>{task.title}</strong>
-              <p>{task.department}</p>
+              <p>
+                {task.assignedTo?.name || 'Unassigned'} /{' '}
+                {task.status.replaceAll('_', ' ')}
+              </p>
             </div>
-            <span className={tw(`due-badge ${task.due.toLowerCase()}`)}>
-              {task.due}
+            <span className={tw('due-badge')}>
+              {task.dueDate
+                ? new Date(task.dueDate).toLocaleDateString('en-IN', {
+                    timeZone: 'Asia/Kolkata',
+                  })
+                : 'No deadline'}
             </span>
-            <span className={tw('task-avatar')}>{task.initials}</span>
+            <span className={tw('task-avatar')}>
+              {task.assignedTo?.name?.slice(0, 2).toUpperCase() || '-'}
+            </span>
           </li>
         ))}
       </ul>
-      <p className={tw('demo-note')}>Demo tasks · Completion is unavailable</p>
+      {!tasks.length && (
+        <p className={tw('empty-state')}>No open team tasks.</p>
+      )}
     </SectionCard>
   );
 }

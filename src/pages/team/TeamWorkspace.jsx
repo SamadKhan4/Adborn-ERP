@@ -42,7 +42,7 @@ export default function TeamWorkspace() {
   const [selected, setSelected] = useState('');
   const [tab, setTab] = useState('Overview');
   const [dialog, setDialog] = useState(null);
-  const allowed = can(permissions, 'team.workspace.view');
+  const allowed = user.role === 'team_leader' && can(permissions, 'team.workspace.view');
   const editable = can(permissions, 'team.workspace.manage');
   const oversight = can(permissions, 'team.members.manage');
   const leaders = useQuery({
