@@ -1,4 +1,5 @@
-﻿import { useState } from 'react';
+import HRMSDialog from '../hrms/HRMSDialog.jsx';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api.js';
 import { useAuthStore } from '../../store/authStore.js';
@@ -94,7 +95,7 @@ export function MailConnect() {
     </section>
   );
 }
-function AccountSettings({ account, onAction }) {
+function AccountSettings({ account, onAction, onReconnect }) {
   const [editingEmail, setEditingEmail] = useState(false);
   const [signature, setSignature] = useState(account.signature || ''),
     [displayName, setName] = useState(account.displayName || '');
@@ -127,6 +128,12 @@ function AccountSettings({ account, onAction }) {
           ? new Date(account.lastSuccessfulSyncAt).toLocaleString('en-IN')
           : 'Not synced yet'}
       </p>
+      <button
+        className="my-2 text-xs font-semibold text-blue-600"
+        onClick={() => onReconnect(account)}
+      >
+        Reconnect
+      </button>
       {account.syncError && (
         <p className="my-3 text-xs text-red-600">{account.syncError}</p>
       )}
@@ -277,6 +284,7 @@ function SharedAccess({ account, onAction }) {
   );
 }
 export default function MailSettings({ accounts, permissions }) {
+  const [reconnecting, setReconnecting] = useState(null);
   const [notice, setNotice] = useState(''),
     [page, setPage] = useState(1),
     [shared, setShared] = useState(null);
@@ -306,6 +314,12 @@ export default function MailSettings({ accounts, permissions }) {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Mail Settings</h2>
+      {reconnecting && (
+        <Reconnect
+          account={reconnecting}
+          onClose={() => setReconnecting(null)}
+        />
+      )}
       {notice && (
         <p role="status" className="rounded-xl bg-blue-50 p-3 text-sm">
           {notice}
@@ -317,6 +331,7 @@ export default function MailSettings({ accounts, permissions }) {
             key={`${a._id}-${a.syncStatus}`}
             account={a}
             onAction={act}
+            onReconnect={setReconnecting}
           />
         ))}
         {!accounts.some((a) => a.type === 'PERSONAL') && (
@@ -378,6 +393,11 @@ export default function MailSettings({ accounts, permissions }) {
                           {a.isActive ? 'Disable' : 'Enable'}
                         </button>
                       )}
+                      {a.type === 'SHARED' && can('admin.accounts.manage') && (
+                        <button onClick={() => setReconnecting(a)}>
+                          Reconnect
+                        </button>
+                      )}
                       {can('admin.sync.retry') && (
                         <button
                           onClick={() =>
@@ -426,5 +446,72 @@ export default function MailSettings({ accounts, permissions }) {
         </section>
       )}
     </div>
+  );
+}
+
+function Reconnect({ account, onClose }) {
+  const [password, setPassword] = useState(''),
+    [error, setError] = useState('');
+  const cache = useQueryClient();
+  const save = useMutation({
+    mutationFn: () =>
+      api.post(
+        `/mail/accounts/${account._id}/reconnect`,
+        { password },
+        { timeout: 60000 },
+      ),
+    onSuccess: () => {
+      setPassword('');
+      cache.invalidateQueries({ queryKey: ['mail'] });
+      onClose();
+    },
+    onError: (e) => {
+      setPassword('');
+      setError(
+        e.response?.data?.error?.message ||
+          'Unable to verify mailbox. Please retry.',
+      );
+    },
+  });
+  return (
+    <HRMSDialog
+      open
+      onOpenChange={() => !save.isPending && onClose()}
+      title="Reconnect Mailbox"
+      description="Enter the mailbox password to verify Hostinger IMAP and SMTP again."
+    >
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          save.mutate();
+        }}
+      >
+        <label className="block text-xs">
+          Work email
+          <input className={input} readOnly value={account.emailAddress} />
+        </label>
+        <label className="block text-xs">
+          Mailbox password
+          <input
+            aria-label="Reconnect mailbox password"
+            className={input}
+            type="password"
+            required
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+        {error && (
+          <p role="alert" className="text-xs text-red-600">
+            {error}
+          </p>
+        )}
+        <button className={button} disabled={save.isPending}>
+          {save.isPending ? 'Verifying IMAP & SMTP...' : 'Verify & Reconnect'}
+        </button>
+      </form>
+    </HRMSDialog>
   );
 }
