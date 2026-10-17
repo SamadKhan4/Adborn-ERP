@@ -7,7 +7,6 @@ import {
   WalletCards,
   ChartNoAxesCombined,
   Building2,
-  PhoneCall,
   Files,
   ShieldCheck,
   CircleUserRound,
@@ -64,13 +63,13 @@ export const navigation = [
     label: 'Finance',
     path: '/finance',
     icon: WalletCards,
-    permission: 'finance.read',
+    permission: 'finance.dashboard.view',
   },
   {
     label: 'Reports',
     path: '/reports',
     icon: ChartNoAxesCombined,
-    permission: 'reports.read',
+    permission: 'reports.view',
   },
   {
     label: 'Departments',
@@ -78,17 +77,16 @@ export const navigation = [
     icon: Building2,
     allowedRoles: ['super_admin', 'admin', 'manager', 'hr'],
   },
-  { label: 'Leads', path: '/leads', icon: PhoneCall, permission: 'leads.read' },
-  { label: 'My Mails', path: '/my-mails', icon: Mail, allowedRoles: ['super_admin', 'admin', 'manager', 'hr', 'executive', 'team_leader', 'employee', 'lead_caller', 'customer'] },
+  { label: 'Mail', path: '/mail', icon: Mail, allowedRoles: ['super_admin', 'admin', 'manager', 'hr', 'executive', 'team_leader', 'employee', 'lead_caller', 'customer'] },
   {
     label: 'Projects',
     path: '/projects',
     icon: FolderKanban,
-    permission: 'projects.read',
+    permission: 'projects.view',
   },
 ];
 export const canView = (user, item) =>
-  user.role === 'team_leader' && ['CRM', 'HRMS'].includes(item.label) ? false : item.label === 'CRM' ? user.role === 'super_admin' || user.permissions?.some((permission) => permission.startsWith('crm.')) : item.allowedRoles
+  user.role === 'team_leader' && ['CRM', 'HRMS'].includes(item.label) ? false : item.label === 'Finance' ? user.role === 'super_admin' || user.permissions?.some((permission) => permission.startsWith('finance.') && !permission.startsWith('finance.scope.')) : item.label === 'CRM' ? user.role === 'super_admin' || user.permissions?.some((permission) => permission.startsWith('crm.')) : item.allowedRoles
     ? item.allowedRoles.includes(user.role)
     : item.path === '/' ||
       item.path === '/departments' ||

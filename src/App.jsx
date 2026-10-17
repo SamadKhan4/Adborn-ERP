@@ -7,8 +7,11 @@ import Login from './pages/auth/Login.jsx';
 import Logout from './pages/auth/Logout.jsx';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
 const MailDelivery = lazy(() => import('./pages/MailDelivery.jsx'));
-const MyMail = lazy(() => import('./pages/MyMail.jsx'));
-const Departments = lazy(() => import('./pages/Departments.jsx')); 
+const MailWorkspace = lazy(() => import('./pages/MailWorkspace.jsx'));
+const Reports = lazy(() => import('./pages/Reports.jsx'));
+const Projects = lazy(() => import('./pages/Projects.jsx'));
+const Finance = lazy(() => import('./pages/Finance.jsx'));
+const Departments = lazy(() => import('./pages/Departments.jsx'));
 const DepartmentDetail = lazy(() => import('./pages/DepartmentDetail.jsx'));
 import { authService } from './services/authService.js';
 import { useAuthStore } from './store/authStore.js';
@@ -17,14 +20,18 @@ import { defaultRouteForRole } from './config/navigation.js';
 const HRMSLayout = lazy(() => import('./components/hrms/HRMSLayout.jsx'));
 const HRMSDashboard = lazy(() => import('./pages/hrms/HRMSDashboard.jsx'));
 const Employees = lazy(() => import('./pages/hrms/Employees.jsx'));
-const EmployeeMonitoring = lazy(() => import('./pages/hrms/EmployeeMonitoring.jsx'));
+const EmployeeMonitoring = lazy(
+  () => import('./pages/hrms/EmployeeMonitoring.jsx'),
+);
 const Onboarding = lazy(() => import('./pages/hrms/Onboarding.jsx'));
 const HRMSModulePage = lazy(() => import('./pages/hrms/HRMSModulePage.jsx'));
 const Attendance = lazy(() => import('./pages/hrms/Attendance.jsx'));
 const HolidayCalendar = lazy(() => import('./pages/hrms/HolidayCalendar.jsx'));
 const Payroll = lazy(() => import('./pages/hrms/Payroll.jsx'));
 const UserManagement = lazy(() => import('./pages/UserManagement.jsx'));
-const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard.jsx'));
+const EmployeeDashboard = lazy(
+  () => import('./pages/employee/EmployeeDashboard.jsx'),
+);
 const Quotations = lazy(() => import('./pages/Quotations.jsx'));
 const Invoices = lazy(() => import('./pages/Invoices.jsx'));
 const CRMLayout = lazy(() => import('./components/crm/CRMLayout.jsx'));
@@ -36,7 +43,9 @@ const ClientDetail = lazy(() => import('./pages/crm/ClientDetail.jsx'));
 const CRMOverview = lazy(() => import('./pages/crm/CRMOverview.jsx'));
 const CRMReports = lazy(() => import('./pages/crm/CRMReports.jsx'));
 const CRMSettings = lazy(() => import('./pages/crm/CRMSettings.jsx'));
-const ActivityTimeline = lazy(() => import('./components/crm/ActivityTimeline.jsx'));
+const ActivityTimeline = lazy(
+  () => import('./components/crm/ActivityTimeline.jsx'),
+);
 const TeamWorkspace = lazy(() => import('./pages/team/TeamWorkspace.jsx'));
 const MyWork = lazy(() => import('./pages/team/MyWork.jsx'));
 
@@ -107,24 +116,96 @@ export default function App() {
         <Route element={<ERPLayout />}>
           <Route path="/" element={<OverviewRoute />} />
           <Route path="/employee" element={<EmployeeRoute />} />
-          <Route path="/mail" element={<Suspense fallback={<p role="status">Loading mail delivery…</p>}><MailDelivery /></Suspense>} />
-          <Route path="/my-mails" element={<Suspense fallback={<p role="status">Loading mails…</p>}><MyMail /></Suspense>} />
-          <Route path="/team" element={<Suspense fallback={<p role="status">Loading team workspace...</p>}><TeamWorkspace /></Suspense>} />
-          <Route path="/my-work" element={<Suspense fallback={<p role="status">Loading your team tasks...</p>}><MyWork /></Suspense>} />
-          {[
-            'projects',
-            'payments',
-            'reports',
-            'activity',
-            'tasks',
-            'leads',
-            'finance',
-          ].map((path) => (
+          <Route
+            path="/mail-delivery"
+            element={
+              <Suspense
+                fallback={<p role="status">Loading mail delivery...</p>}
+              >
+                <MailDelivery />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/mail/*"
+            element={
+              <Suspense fallback={<p role="status">Loading mail...</p>}>
+                <MailWorkspace />
+              </Suspense>
+            }
+          />
+          <Route path="/my-mails" element={<Navigate to="/mail" replace />} />
+          <Route
+            path="/team"
+            element={
+              <Suspense
+                fallback={<p role="status">Loading team workspace...</p>}
+              >
+                <TeamWorkspace />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/my-work"
+            element={
+              <Suspense
+                fallback={<p role="status">Loading your team tasks...</p>}
+              >
+                <MyWork />
+              </Suspense>
+            }
+          />
+          {['payments', 'activity', 'tasks', 'leads'].map((path) => (
             <Route key={path} path={`/${path}`} element={<ComingSoon />} />
           ))}
-          <Route path="/departments" element={<Suspense fallback={<p role="status">Loading departments...</p>}><Departments /></Suspense>} />
-          <Route path="/departments/:id" element={<Suspense fallback={<p role="status">Loading department...</p>}><DepartmentDetail /></Suspense>} />
-          <Route path="/crm" element={<Suspense fallback={<p role="status">Loading CRM…</p>}><CRMLayout /></Suspense>}>
+          <Route
+            path="/reports/*"
+            element={
+              <Suspense fallback={<p role="status">Loading reports…</p>}>
+                <Reports />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/projects/*"
+            element={
+              <Suspense fallback={<p role="status">Loading projects...</p>}>
+                <Projects />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/finance/*"
+            element={
+              <Suspense fallback={<p role="status">Loading finance…</p>}>
+                <Finance />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/departments"
+            element={
+              <Suspense fallback={<p role="status">Loading departments...</p>}>
+                <Departments />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/departments/:id"
+            element={
+              <Suspense fallback={<p role="status">Loading department...</p>}>
+                <DepartmentDetail />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/crm"
+            element={
+              <Suspense fallback={<p role="status">Loading CRM…</p>}>
+                <CRMLayout />
+              </Suspense>
+            }
+          >
             <Route index element={<CRMOverview />} />
             <Route path="leads" element={<Leads />} />
             <Route path="leads/:id" element={<LeadDetail />} />
@@ -135,14 +216,26 @@ export default function App() {
             <Route path="settings" element={<CRMSettings />} />
             <Route path="activities" element={<ActivityTimeline />} />
           </Route>
-          <Route path="/quotations" element={<Suspense fallback={<p role="status">Loading quotationsâ€¦</p>}><Quotations /></Suspense>} />
-          <Route path="/invoices" element={<Suspense fallback={<p role="status">Loading invoices…</p>}><Invoices /></Suspense>} />
+          <Route
+            path="/quotations"
+            element={
+              <Suspense fallback={<p role="status">Loading quotationsâ€¦</p>}>
+                <Quotations />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/invoices"
+            element={
+              <Suspense fallback={<p role="status">Loading invoices…</p>}>
+                <Invoices />
+              </Suspense>
+            }
+          />
           <Route
             path="/user-management"
             element={
-              ['super_admin', 'admin', 'manager'].includes(
-                role,
-              ) ? (
+              ['super_admin', 'admin', 'manager'].includes(role) ? (
                 <Suspense
                   fallback={<p role="status">Loading user management…</p>}
                 >
@@ -157,14 +250,27 @@ export default function App() {
             path="/hrms"
             element={
               <Suspense fallback={<p role="status">Loading HRMS workspace…</p>}>
-              {role === 'team_leader' ? <Navigate to="/employee" replace /> : <HRMSLayout />}
+                {role === 'team_leader' ? (
+                  <Navigate to="/employee" replace />
+                ) : (
+                  <HRMSLayout />
+                )}
               </Suspense>
             }
           >
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<HRMSDashboard />} />
             <Route path="employees" element={<Employees />} />
-            <Route path="employees/:id/monitoring" element={['super_admin', 'admin', 'manager', 'hr'].includes(role) ? <EmployeeMonitoring /> : <Navigate to={defaultRouteForRole(role)} replace />} />
+            <Route
+              path="employees/:id/monitoring"
+              element={
+                ['super_admin', 'admin', 'manager', 'hr'].includes(role) ? (
+                  <EmployeeMonitoring />
+                ) : (
+                  <Navigate to={defaultRouteForRole(role)} replace />
+                )
+              }
+            />
             <Route path="onboarding" element={<Onboarding />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="holidays" element={<HolidayCalendar />} />

@@ -245,7 +245,7 @@ export default function UserManagement() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/mail" className="rounded-xl border border-[#dce7f0] bg-white px-4 py-2 text-xs font-semibold text-[#087dda]">Mail Delivery</Link>
+          <Link to="/mail-delivery" className="rounded-xl border border-[#dce7f0] bg-white px-4 py-2 text-xs font-semibold text-[#087dda]">Mail Delivery</Link>
           <Button
             variant="secondary"
             disabled={query.isFetching}

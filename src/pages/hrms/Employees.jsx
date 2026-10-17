@@ -131,7 +131,7 @@ export default function Employees() {
         onOpenNavigation={openHRMSNavigation}
         actions={
           <>
-            {monitoringRoles.includes(actorRole) && <Link to="/mail" className="rounded-xl border border-[#dce7f0] bg-white px-4 py-2 text-xs font-semibold text-[#087dda]">Mail Delivery</Link>}
+            {monitoringRoles.includes(actorRole) && <Link to="/mail-delivery" className="rounded-xl border border-[#dce7f0] bg-white px-4 py-2 text-xs font-semibold text-[#087dda]">Mail Delivery</Link>}
             <Button
               variant="secondary"
               disabled={query.isFetching}
