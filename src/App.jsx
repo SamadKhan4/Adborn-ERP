@@ -1,4 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
+const SettingsPage = lazy(() => import('./pages/Settings.jsx'));
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import ERPLayout from './components/layout/ERPLayout.jsx';
 const Dashboard = lazy(() => import('./pages/dashboard/Dashboard.jsx'));
@@ -116,6 +117,7 @@ export default function App() {
         <Route element={<ERPLayout />}>
           <Route path="/" element={<OverviewRoute />} />
           <Route path="/employee" element={<EmployeeRoute />} />
+          <Route path="/settings" element={<Suspense fallback={<p role="status">Loading settings...</p>}><SettingsPage /></Suspense>} />
           <Route
             path="/mail-delivery"
             element={
