@@ -38,3 +38,4 @@ test('finance source permissions hide unauthorized actions and direct navigation
   mount(<Finance />, '/finance/invoices'); expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'You do not have permission to access this finance section.');
   expect(screen.queryByRole('button', { name: /Create Invoice/ })).toBeNull();
 });
+test('invoice type is the first creation option and switching brands clears GST',async()=>{mount(<FinanceForm mode="invoice" metadata={metadata} onClose={vi.fn()}/>);const select=screen.getByRole('combobox',{name:'Invoice type'});expect(document.querySelector('form select')).toBe(select);fireEvent.change(select,{target:{value:'GST'}});expect(screen.getByLabelText('Tax Rate 1').value).toBe('18');fireEvent.change(select,{target:{value:'NON_GST'}});expect(screen.getByLabelText('Tax Rate 1').value).toBe('0');expect(screen.getByLabelText('Tax Rate 1').disabled).toBe(true);});

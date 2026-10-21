@@ -46,6 +46,8 @@ const initialForm = () => {
     client: { ...emptyClient },
     paymentDetails: { ...emptyPayment },
     items: [{ title: '', amount: '' }],
+    invoiceType: 'GST',
+    gstin: '',
     gstRate: 18,
     status: 'Draft',
     notes: '',
@@ -53,6 +55,8 @@ const initialForm = () => {
 };
 const fromInvoice = (invoice) => ({
   ...invoice,
+  invoiceType:
+    invoice.invoiceType || (invoice.gstAmount > 0 ? 'GST' : 'NON_GST'),
   client: { ...invoice.client },
   paymentDetails: { ...invoice.paymentDetails },
   items: invoice.items.map(({ title, amount }) => ({ title, amount })),
@@ -142,7 +146,9 @@ export function InvoiceForm({ invoice, business, onClose }) {
           amount: Number(item.amount || 0),
         }))
         .filter((item) => item.title),
-      gstRate: Number(form.gstRate),
+      invoiceType: form.invoiceType,
+      gstin: form.gstin || '',
+      gstRate: form.invoiceType === 'NON_GST' ? 0 : Number(form.gstRate),
       status: form.status,
       ...(form.notes ? { notes: form.notes } : {}),
     });
@@ -152,6 +158,22 @@ export function InvoiceForm({ invoice, business, onClose }) {
   return (
     <form onSubmit={submit} className="grid gap-5 xl:grid-cols-[1fr_360px]">
       <div className="space-y-5">
+        <section className="rounded-2xl border border-[#dce7f0] bg-[#f2f8ff] p-4">
+          <Field label="Invoice type">
+            <select
+              aria-label="Invoice type"
+              className={inputClass}
+              value={form.invoiceType}
+              onChange={(e) => {
+                set('invoiceType', e.target.value);
+                set('gstRate', e.target.value === 'GST' ? 18 : 0);
+              }}
+            >
+              <option value="GST">With GST - ABCO Computers</option>
+              <option value="NON_GST">Without GST - AdBorn Solutions</option>
+            </select>
+          </Field>
+        </section>
         <section className="grid gap-4 rounded-2xl bg-[#f7fafd] p-4 sm:grid-cols-3">
           <Field label="Invoice date">
             <input
@@ -314,6 +336,17 @@ export function InvoiceForm({ invoice, business, onClose }) {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">
+          {form.invoiceType === 'GST' && (
+            <Field label="Client GSTIN (optional)">
+              <input
+                aria-label="Client GSTIN"
+                className={inputClass}
+                maxLength={15}
+                value={form.gstin || ''}
+                onChange={(e) => set('gstin', e.target.value.toUpperCase())}
+              />
+            </Field>
+          )}
           <Field label="GST rate (%)">
             <input
               type="number"
@@ -321,6 +354,7 @@ export function InvoiceForm({ invoice, business, onClose }) {
               max="100"
               step="0.01"
               className={inputClass}
+              disabled={form.invoiceType === 'NON_GST'}
               value={form.gstRate}
               onChange={(event) => set('gstRate', event.target.value)}
             />
@@ -343,11 +377,25 @@ export function InvoiceForm({ invoice, business, onClose }) {
         )}
       </div>
 
-      <aside className="h-fit rounded-[20px] border border-[#dfe8f1] bg-[#fbfdff] p-4 xl:sticky xl:top-4">
-        <div className="border-t-[5px] border-[#082f55] bg-white p-4 shadow-[0_12px_35px_#315d8612]">
+      <aside
+        style={{
+          '--invoice-accent':
+            form.invoiceType === 'GST' ? '#a00000' : '#1593d0',
+          '--invoice-dark': form.invoiceType === 'GST' ? '#2c1d1d' : '#082f55',
+          '--invoice-pale': form.invoiceType === 'GST' ? '#fff8f8' : '#f2f7fa',
+        }}
+        className="h-fit rounded-[20px] border border-[#dfe8f1] bg-[#fbfdff] p-4 xl:sticky xl:top-4"
+      >
+        <div
+          className={`border-t-[5px] ${form.invoiceType === 'GST' ? 'border-[#2c1d1d]' : 'border-[#082f55]'} bg-white p-4 shadow-[0_12px_35px_#315d8612]`}
+        >
           <img
-            src="/adborn_logo.png"
-            alt="AdBorn Solutions"
+            src={
+              form.invoiceType === 'GST' ? '/ABCO_Logo.png' : '/adborn_logo.png'
+            }
+            alt={
+              form.invoiceType === 'GST' ? 'ABCO Computers' : 'AdBorn Solutions'
+            }
             className="h-10 w-auto"
           />
           <div className="my-4 h-px bg-[#dce3e8]" />
@@ -355,23 +403,29 @@ export function InvoiceForm({ invoice, business, onClose }) {
             <div>
               <h3 className="text-xl font-extrabold">INVOICE</h3>
               <p className="mt-2 max-w-44 text-[7px] text-[#657487]">
-                Thank you for choosing AdBorn Solutions.
+                Thank you for choosing{' '}
+                {form.invoiceType === 'GST'
+                  ? 'ABCO Computers'
+                  : 'AdBorn Solutions'}
+                .
               </p>
             </div>
-            <div className="rounded-xl bg-[#f2f7fa] p-2 text-[7px]">
+            <div className="rounded-xl bg-[var(--invoice-pale)] p-2 text-[7px]">
               <p>DATE: {form.invoiceDate}</p>
               <p className="mt-1">DUE: {form.dueDate}</p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="rounded-lg bg-[#f2f7fa] p-2">
-              <b className="text-[8px] text-[#1593d0]">BILL TO</b>
+            <div className="rounded-lg bg-[var(--invoice-pale)] p-2">
+              <b className="text-[8px] text-[var(--invoice-accent)]">BILL TO</b>
               <p className="mt-2 text-[8px]">
                 {form.client.company || 'Client / Company'}
               </p>
             </div>
-            <div className="rounded-lg bg-[#f2f7fa] p-2">
-              <b className="text-[8px] text-[#1593d0]">PAYMENT DETAILS</b>
+            <div className="rounded-lg bg-[var(--invoice-pale)] p-2">
+              <b className="text-[8px] text-[var(--invoice-accent)]">
+                PAYMENT DETAILS
+              </b>
               <p className="mt-2 text-[8px]">
                 {form.paymentDetails.bankName || 'Bank Name'}
               </p>
@@ -381,9 +435,9 @@ export function InvoiceForm({ invoice, business, onClose }) {
             {form.items.map((item, index) => (
               <div
                 key={index}
-                className={`grid grid-cols-[22px_1fr_66px] gap-2 px-2 py-2 text-[8px] ${index % 2 ? 'bg-[#f2f7fa]' : ''}`}
+                className={`grid grid-cols-[22px_1fr_66px] gap-2 px-2 py-2 text-[8px] ${index % 2 ? 'bg-[var(--invoice-pale)]' : ''}`}
               >
-                <span className="text-[#1593d0]">
+                <span className="text-[var(--invoice-accent)]">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <span className="truncate">
@@ -394,17 +448,19 @@ export function InvoiceForm({ invoice, business, onClose }) {
             ))}
           </div>
           <div className="ml-auto mt-4 w-48">
-            <div className="space-y-2 bg-[#f2f7fa] p-3 text-[9px]">
+            <div className="space-y-2 bg-[var(--invoice-pale)] p-3 text-[9px]">
               <p className="flex justify-between">
                 <span>SUBTOTAL</span>
                 <b>{money(subtotal)}</b>
               </p>
-              <p className="flex justify-between">
-                <span>GST {form.gstRate}%</span>
-                <b>{money(gst)}</b>
-              </p>
+              {form.invoiceType === 'GST' && (
+                <p className="flex justify-between">
+                  <span>GST {form.gstRate}%</span>
+                  <b>{money(gst)}</b>
+                </p>
+              )}
             </div>
-            <div className="flex justify-between bg-[#082f55] p-3 text-[10px] text-white">
+            <div className="flex justify-between bg-[var(--invoice-dark)] p-3 text-[10px] text-white">
               <span>GRAND TOTAL</span>
               <b>{money(subtotal + gst)}</b>
             </div>

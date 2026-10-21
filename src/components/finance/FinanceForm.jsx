@@ -45,6 +45,8 @@ export default function FinanceForm({ mode, row, metadata, onClose }) {
     [form, setForm] = useState(() => {
       if (invoiceMode)
         return {
+          invoiceType:
+            row?.invoiceType || (row?.taxMinor > 0 ? 'GST' : 'NON_GST'),
           client: id(row?.clientRef) || '',
           quotation: id(row?.quotation) || '',
           project: id(row?.project) || '',
@@ -152,7 +154,16 @@ export default function FinanceForm({ mode, row, metadata, onClose }) {
     });
   const [lines, setLines] = useState(
     () =>
-      (row?.lineItems || row?.items?.map((item) => ({ description: item.title, quantity: '1', rateMinor: Math.round(item.amount * 100), discountMinor: 0, taxRate: String(row.gstRate || 0) })))?.map((line) => ({
+      (
+        row?.lineItems ||
+        row?.items?.map((item) => ({
+          description: item.title,
+          quantity: '1',
+          rateMinor: Math.round(item.amount * 100),
+          discountMinor: 0,
+          taxRate: String(row.gstRate || 0),
+        }))
+      )?.map((line) => ({
         description: line.description,
         quantity: line.quantity,
         rate: amountInput(line.rateMinor),
@@ -200,7 +211,10 @@ export default function FinanceForm({ mode, row, metadata, onClose }) {
         path,
         method = 'post';
       if (invoiceMode) {
-        body.items = lines;
+        body.items = lines.map((line) => ({
+          ...line,
+          taxRate: form.invoiceType === 'NON_GST' ? '0' : line.taxRate,
+        }));
         path = mode === 'editInvoice' ? `/invoices/${row._id}` : '/invoices';
         if (mode === 'editInvoice') method = 'patch';
       } else if (mode === 'payment') path = '/payments';
@@ -337,6 +351,37 @@ export default function FinanceForm({ mode, row, metadata, onClose }) {
           if (!mutation.isPending) mutation.mutate();
         }}
       >
+        <div
+          className={
+            invoiceMode
+              ? 'rounded-2xl border border-[#dce7f0] bg-[#f2f8ff] p-4'
+              : 'hidden'
+          }
+        >
+          {invoiceMode && (
+            <label className="text-xs">
+              Invoice type
+              <select
+                aria-label="Invoice type"
+                className={input}
+                value={form.invoiceType}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setForm((f) => ({ ...f, invoiceType: value }));
+                  setLines((rows) =>
+                    rows.map((row) => ({
+                      ...row,
+                      taxRate: value === 'GST' ? '18' : '0',
+                    })),
+                  );
+                }}
+              >
+                <option value="GST">With GST - ABCO Computers</option>
+                <option value="NON_GST">Without GST - AdBorn Solutions</option>
+              </select>
+            </label>
+          )}
+        </div>
         {(invoiceMode || expenseMode || recurringMode) && (
           <label className="block text-xs">
             Find client
@@ -682,6 +727,10 @@ export default function FinanceForm({ mode, row, metadata, onClose }) {
                           aria-label={`${label(field)} ${index + 1}`}
                           required
                           className={`${input} ${field === 'description' ? 'min-w-52' : 'w-24'}`}
+                          disabled={
+                            field === 'taxRate' &&
+                            form.invoiceType === 'NON_GST'
+                          }
                           value={line[field]}
                           type={field === 'description' ? 'text' : 'number'}
                           min="0"
