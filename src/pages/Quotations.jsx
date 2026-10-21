@@ -121,7 +121,7 @@ export function QuotationForm({ quotation, lead, onClose }) {
 
         <section className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-[#d7e8f3] bg-[#f3f9fd] p-4"><h3 className="mb-3 text-xs font-bold text-[#087fc3]">Quotation from</h3><div className="space-y-2 text-[10px] text-[#49657d]"><p><strong className="text-[#173958]">AdBorn Solutions</strong></p><p>Team AdBorn Solutions</p><p>+91 7488049134</p><p>info@adbornsolutions.com</p></div></div>
-          <div className="rounded-2xl border border-[#e5edf5] p-4"><h3 className="mb-3 text-xs font-bold text-[#087fc3]">Quotation to</h3><div className="space-y-3">{[['company','Client / Company','text'],['contactPerson','Contact Person','text'],['contactNumber','Contact No.','tel'],['email','Email','email']].map(([key,label,type]) => <Field key={key} label={label}><input className={inputClass} type={type} value={form.client[key]} onChange={(event) => setParty('client', key, event.target.value)} required /></Field>)}</div></div>
+          <div className="rounded-2xl border border-[#e5edf5] p-4"><h3 className="mb-3 text-xs font-bold text-[#087fc3]">Quotation to</h3><div className="space-y-3">{[['company','Client / Company','text'],['contactPerson','Contact Person','text'],['contactNumber','Contact No.','tel'],['email','Email (optional)','email']].map(([key,label,type]) => <Field key={key} label={label}><input className={inputClass} type={type} value={form.client[key]} onChange={(event) => setParty('client', key, event.target.value)} required={key !== 'email'} /></Field>)}</div></div>
         </section>
 
         <div className="space-y-5">

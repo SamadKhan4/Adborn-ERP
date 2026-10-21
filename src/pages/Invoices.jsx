@@ -231,11 +231,11 @@ export function InvoiceForm({ invoice, business, onClose }) {
                 ['contactPerson', 'Contact Person', 'text'],
                 ['address', 'Address', 'text'],
                 ['contactNumber', 'Contact No.', 'tel'],
-                ['email', 'Email', 'email'],
+                ['email', 'Email (optional)', 'email'],
               ].map(([key, label, type]) => (
                 <Field key={key} label={label}>
                   <input
-                    required
+                    required={key !== 'email'}
                     type={type}
                     className={inputClass}
                     value={form.client[key]}
