@@ -75,6 +75,11 @@ function Field({ label, children }) {
 
 export function InvoiceForm({ invoice, business, onClose }) {
   const queryClient = useQueryClient();
+  const issuers = useQuery({
+    queryKey: ['invoice-issuers'],
+    queryFn: async () => (await api.get('/invoices/issuers')).data.data,
+    staleTime: Infinity,
+  });
   const [form, setForm] = useState(() =>
     invoice
       ? fromInvoice(invoice)
@@ -173,6 +178,16 @@ export function InvoiceForm({ invoice, business, onClose }) {
               <option value="NON_GST">Without GST - AdBorn Solutions</option>
             </select>
           </Field>
+          {form.invoiceType === 'GST' && (
+            <Field label="Company GSTIN (automatic)">
+              <input
+                readOnly
+                className={inputClass}
+                value={issuers.data?.GST?.gstin || ''}
+                placeholder="Loading company GSTIN..."
+              />
+            </Field>
+          )}
         </section>
         <section className="grid gap-4 rounded-2xl bg-[#f7fafd] p-4 sm:grid-cols-3">
           <Field label="Invoice date">

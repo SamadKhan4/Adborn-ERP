@@ -35,6 +35,12 @@ const names = {
   document: 'Upload Financial Document',
 };
 export default function FinanceForm({ mode, row, metadata, onClose }) {
+  const issuers = useQuery({
+    queryKey: ['invoice-issuers'],
+    queryFn: async () => (await api.get('/invoices/issuers')).data.data,
+    staleTime: Infinity,
+    enabled: ['invoice', 'editInvoice'].includes(mode),
+  });
   const invoiceMode = ['invoice', 'editInvoice'].includes(mode),
     expenseMode = ['expense', 'editExpense'].includes(mode),
     recurringMode = ['recurring', 'editRecurring'].includes(mode),
@@ -379,6 +385,17 @@ export default function FinanceForm({ mode, row, metadata, onClose }) {
                 <option value="GST">With GST - ABCO Computers</option>
                 <option value="NON_GST">Without GST - AdBorn Solutions</option>
               </select>
+            </label>
+          )}
+          {invoiceMode && form.invoiceType === 'GST' && (
+            <label className="block text-xs mt-3">
+              Company GSTIN (automatic)
+              <input
+                readOnly
+                className={input}
+                value={issuers.data?.GST?.gstin || ''}
+                placeholder="Loading company GSTIN..."
+              />
             </label>
           )}
         </div>
