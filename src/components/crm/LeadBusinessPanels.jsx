@@ -184,7 +184,14 @@ export function LeadQuotations({ lead }) {
                   {item.title} · {item.status}
                 </p>
               </div>
-              <strong>{money(item.grandTotal)}</strong>
+              <strong>
+                {(item.services?.length ? item.services : [item.service])
+                  .map(
+                    (service) =>
+                      `${service}: ${money(item.serviceTotals?.find((entry) => entry.service === service)?.total ?? item.items?.filter((row) => (row.service || item.service) === service).reduce((sum, row) => sum + Number(row.amount || 0), 0))}`,
+                  )
+                  .join(' � ')}
+              </strong>
               <Link
                 to={`/quotations?search=${encodeURIComponent(item.quotationNumber)}`}
                 className="text-blue-700"
