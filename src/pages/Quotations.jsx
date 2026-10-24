@@ -329,7 +329,7 @@ export function QuotationForm({ quotation, lead, onClose }) {
           <div>
             <h3 className="text-sm font-bold">Price breakdown by service</h3>
             <p className="text-[9px] text-[#75889c]">
-              Up to 6 rows per service. Row amounts are optional. Enter each
+              Up to 100 rows per service. Row amounts are optional. Enter each
               service total manually; PDF tables share a page when space allows.
             </p>
           </div>
@@ -370,7 +370,7 @@ export function QuotationForm({ quotation, lead, onClose }) {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    disabled={serviceItems.length >= 6}
+                    disabled={serviceItems.length >= 100}
                     onClick={() =>
                       set('items', [
                         ...form.items,
