@@ -158,8 +158,12 @@ export function InvoiceForm({ invoice, business, onClose }) {
       ...(form.notes ? { notes: form.notes } : {}),
     });
   };
-  const error =
-    mutation.error?.response?.data?.error?.message || mutation.error?.message;
+  const responseError = mutation.error?.response?.data?.error;
+  const error = responseError?.details?.length
+    ? responseError.details
+        .map(({ field, message }) => `${field ? `${field}: ` : ''}${message}`)
+        .join('; ')
+    : responseError?.message || mutation.error?.message;
   return (
     <form onSubmit={submit} className="grid gap-5 xl:grid-cols-[1fr_360px]">
       <div className="space-y-5">
@@ -215,10 +219,16 @@ export function InvoiceForm({ invoice, business, onClose }) {
               value={form.status}
               onChange={(event) => set('status', event.target.value)}
             >
-              {statuses.map((status) => (
-                <option key={status}>{status}</option>
-              ))}
+              {form.status === 'Paid' && <option disabled>Paid</option>}
+              {statuses
+                .filter((status) => status !== 'Paid')
+                .map((status) => (
+                  <option key={status}>{status}</option>
+                ))}
             </select>
+            <span className="mt-1 block">
+              Record payments in Finance to mark an invoice as paid.
+            </span>
           </Field>
         </section>
 
