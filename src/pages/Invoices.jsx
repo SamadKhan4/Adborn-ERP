@@ -219,12 +219,9 @@ export function InvoiceForm({ invoice, business, onClose }) {
               value={form.status}
               onChange={(event) => set('status', event.target.value)}
             >
-              {form.status === 'Paid' && <option disabled>Paid</option>}
-              {statuses
-                .filter((status) => status !== 'Paid')
-                .map((status) => (
-                  <option key={status}>{status}</option>
-                ))}
+              {statuses.map((status) => (
+                <option key={status}>{status}</option>
+              ))}
             </select>
             <span className="mt-1 block">
               Record payments in Finance to mark an invoice as paid.
