@@ -51,10 +51,13 @@ const initialForm = () => {
     gstRate: 18,
     status: 'Draft',
     notes: '',
+    paymentTerms:
+      'Payment is due by the due date shown on this invoice.\nPlease mention the invoice number when making payment.\nAdditional services and third-party charges are billed separately, as agreed.',
   };
 };
 const fromInvoice = (invoice) => ({
   ...invoice,
+  paymentTerms: invoice.paymentTerms ?? invoice.companySnapshot?.terms ?? '',
   invoiceType:
     invoice.invoiceType || (invoice.gstAmount > 0 ? 'GST' : 'NON_GST'),
   client: { ...invoice.client },
@@ -114,6 +117,11 @@ export function InvoiceForm({ invoice, business, onClose }) {
         : (await api.post('/invoices', payload)).data,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      await Promise.all(
+        ['finance', 'financeInvoice', 'financeMetadata', 'dashboard'].map(
+          (key) => queryClient.invalidateQueries({ queryKey: [key] }),
+        ),
+      );
       onClose();
     },
   });
@@ -155,6 +163,7 @@ export function InvoiceForm({ invoice, business, onClose }) {
       gstin: form.gstin || '',
       gstRate: form.invoiceType === 'NON_GST' ? 0 : Number(form.gstRate),
       status: form.status,
+      paymentTerms: form.paymentTerms,
       ...(form.notes ? { notes: form.notes } : {}),
     });
   };
@@ -219,13 +228,18 @@ export function InvoiceForm({ invoice, business, onClose }) {
               value={form.status}
               onChange={(event) => set('status', event.target.value)}
             >
-              {statuses.map((status) => (
-                <option key={status}>{status}</option>
-              ))}
+              {statuses
+                .filter((status) => invoice || status !== 'Paid')
+                .map((status) => (
+                  <option key={status}>{status}</option>
+                ))}
             </select>
-            <span className="mt-1 block">
-              Record payments in Finance to mark an invoice as paid.
-            </span>
+            {invoice && (
+              <span className="mt-1 block">
+                Selecting Paid records the full invoice amount as received in
+                Finance.
+              </span>
+            )}
           </Field>
         </section>
 
@@ -379,6 +393,15 @@ export function InvoiceForm({ invoice, business, onClose }) {
               disabled={form.invoiceType === 'NON_GST'}
               value={form.gstRate}
               onChange={(event) => set('gstRate', event.target.value)}
+            />
+          </Field>
+          <Field label="Terms & Conditions">
+            <textarea
+              className={`${inputClass} min-h-28 py-3`}
+              maxLength={500}
+              value={form.paymentTerms}
+              onChange={(event) => set('paymentTerms', event.target.value)}
+              placeholder="Enter invoice terms and conditions"
             />
           </Field>
           <Field label="Internal notes">
